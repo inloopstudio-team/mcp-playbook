@@ -44,21 +44,21 @@ async function main() {
         // Route the tool call to the appropriate handler
         switch (toolName) {
             case "initialize_docs_structure":
-                result = await handleInitializeDocsStructure(toolArgs.target_project_dir);
+                result = await handleInitializeDocsStructure(toolArgs.target_project_dir as string);
                 break;
             case "create_spec":
-                result = await handleCreateSpec(toolArgs.target_project_dir, toolArgs.spec_name, toolArgs.content);
+                result = await handleCreateSpec(toolArgs.target_project_dir as string, toolArgs.spec_name as string, toolArgs.content as string);
                 break;
             case "create_adr":
-                result = await handleCreateAdr(toolArgs.target_project_dir, toolArgs.adr_name, toolArgs.content);
+                result = await handleCreateAdr(toolArgs.target_project_dir as string, toolArgs.adr_name as string, toolArgs.content as string);
                 break;
             case "update_changelog":
-                result = await handleUpdateChangelog(toolArgs.target_project_dir, toolArgs.entry_content);
+                result = await handleUpdateChangelog(toolArgs.target_project_dir as string, toolArgs.entry_content as string);
                 break;
             case "save_and_upload_chat_log":
                 // TODO: Integrate with actual framework history retrieval
                 // For now, the handler uses a placeholder.
-                result = await handleSaveAndUploadChatLog(toolArgs.target_project_dir);
+                result = await handleSaveAndUploadChatLog(toolArgs.target_project_dir as string);
                 break;
             default:
                 result = { status: "error", message: `Unknown tool: ${toolName}` };
