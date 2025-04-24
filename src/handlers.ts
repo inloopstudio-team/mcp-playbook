@@ -172,38 +172,3 @@ export async function handleSaveAndUploadChatLog(targetProjectDir: string): Prom
         return { status: "error", message: `An error occurred during chat log save/upload: ${e.message}` };
     }
 }
-
-// Conceptual server routing (This is where the MCP framework would integrate)
-/*
-// In your main server file (e.g., src/index.ts)
-import { handleInitializeDocsStructure, handleCreateSpec, handleCreateAdr, handleUpdateChangelog, handleSaveAndUploadChatLog } from './handlers';
-
-async function handleMcpRequest(toolCall: { name: string; args: any }): Promise<any> {
-    console.log(`Received tool call: ${toolCall.name} with args:`, toolCall.args);
-    try {
-        switch (toolCall.name) {
-            case "initialize_docs_structure":
-                return await handleInitializeDocsStructure(toolCall.args.target_project_dir);
-            case "create_spec":
-                return await handleCreateSpec(toolCall.args.target_project_dir, toolCall.args.spec_name, toolCall.args.content);
-            case "create_adr":
-                return await handleCreateAdr(toolCall.args.target_project_dir, toolCall.args.adr_name, toolCall.args.content);
-            case "update_changelog":
-                 return await handleUpdateChangelog(toolCall.args.target_project_dir, toolCall.args.entry_content);
-            case "save_and_upload_chat_log":
-                // Pass conversation history from your framework here if needed by the handler
-                return await handleSaveAndUploadChatLog(toolCall.args.target_project_dir);
-            default:
-                return { status: "error", message: `Unknown tool: ${toolCall.name}` };
-        }
-    } catch (e: any) {
-        console.error(`Error handling tool call ${toolCall.name}: ${e.message}`);
-        return { status: "error", message: `Error executing tool ${toolCall.name}: ${e.message}` };
-    }
-}
-
-// The framework would listen for incoming requests (e.g., via stdio),
-// parse them into toolCall objects, and call handleMcpRequest.
-// The result would then be sent back via stdio or other means depending on the protocol.
-
-*/
