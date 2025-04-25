@@ -1,8 +1,8 @@
 // src/handlers.ts
 import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import * as fsUtils from './fsUtils';
-import * as githubApi from './githubApi';
+import * as fsUtils from './fsUtils.js';
+import * as githubApi from './githubApi.js';
 
 // Placeholder for conversation history retrieval
 // In a real MCP server, this would be provided by the framework hosting the server.

@@ -8,7 +8,7 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 
 import toolDefinitions from "./tools/definitions.js";
-import { handleInitializeDocsStructure, handleCreateSpec, handleCreateAdr, handleUpdateChangelog, handleSaveAndUploadChatLog } from './handlers';
+import { handleInitializeDocsStructure, handleCreateSpec, handleCreateAdr, handleUpdateChangelog, handleSaveAndUploadChatLog } from './handlers.js';
 
 // Optional: Load environment variables from .env in local development
 import * as dotenv from 'dotenv';
