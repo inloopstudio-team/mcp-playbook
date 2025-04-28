@@ -135,7 +135,7 @@ export const toolDefinitions: ToolDefinition[] = [
         target_project_dir: {
           type: "string",
           description:
-            "The absolute or relative path to the root of the target project directory.",
+            "The absolute path to the root of the target project directory. Using an absolute path is highly recommended for reliability.",
           required: true,
         },
         adr_name: {
@@ -181,7 +181,7 @@ export const toolDefinitions: ToolDefinition[] = [
         target_project_dir: {
           type: "string",
           description:
-            "The absolute or relative path to the root of the target project directory.",
+            "The absolute path to the root of the target project directory. Using an absolute path is highly recommended for reliability.",
           required: true,
         },
         entry_content: {
@@ -222,7 +222,7 @@ export const toolDefinitions: ToolDefinition[] = [
         target_project_dir: {
           type: "string",
           description:
-            "The absolute or relative path to the root of the target project directory where the chat log should be saved locally before uploading.",
+            "The absolute path to the root of the target project directory where the chat log should be saved locally before uploading. Using an absolute path is highly recommended for reliability.",
           required: true,
         },
       },
