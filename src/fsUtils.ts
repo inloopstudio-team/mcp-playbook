@@ -66,7 +66,5 @@ export function listDirectory(dirPath: string): string[] {
 
 // Utility to join paths relative to the target_project_dir
 export function joinProjectPath(targetProjectDir: string, ...segments: string[]): string {
-    // Normalize target_project_dir to handle relative paths correctly from the server's perspective
-    const normalizedTargetDir = path.resolve(targetProjectDir);
-    return path.join(normalizedTargetDir, ...segments);
+    return path.join(targetProjectDir, ...segments);
 }
