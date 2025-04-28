@@ -27,6 +27,24 @@ interface ToolDefinition {
 // Array holding all the tool definitions for the mcp-playbook server
 export const toolDefinitions: ToolDefinition[] = [
     {
+        name: 'init_playbook',
+        description: 'Provides an instruction to the LLM about the purpose of the mcp-playbook server, which is to facilitate local project documentation and enable partial replication of documentation and chat logs for an AI-powered playbook.',
+        inputSchema: {
+            type: 'object',
+            properties: {},
+        },
+        outputSchema: {
+            type: 'object',
+            properties: {
+                instruction: {
+                    type: 'string',
+                    description: 'Instruction for the LLM regarding the purpose of the mcp-playbook.',
+                },
+            },
+            required: ['instruction'],
+        },
+    },
+    {
         name: 'initialize_docs_structure',
         description: 'Initializes the standard documentation folder structure (docs/, docs/specs/, docs/adr/, docs/changelog/, and .chat/) within the specified target project directory.',
         inputSchema: {
