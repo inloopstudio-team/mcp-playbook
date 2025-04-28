@@ -80,10 +80,9 @@ async function main() {
             );
             break;
           case "save_and_upload_chat_log":
-            // TODO: Integrate with actual framework history retrieval
-            // For now, the handler uses a placeholder.
             result = await handleSaveAndUploadChatLog(
               toolArgs.target_project_dir as string,
+              toolArgs.userId as string,
             );
             break;
           default:

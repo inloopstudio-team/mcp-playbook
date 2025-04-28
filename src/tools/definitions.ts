@@ -94,7 +94,7 @@ export const toolDefinitions: ToolDefinition[] = [
         spec_name: {
           type: "string",
           description:
-            "The name of the specification file (without the .md extension).",
+            "The name of the specification file (without sequence numbers and the .md extension).",
           required: true,
         },
         content: {
@@ -140,7 +140,7 @@ export const toolDefinitions: ToolDefinition[] = [
         },
         adr_name: {
           type: "string",
-          description: "The name of the ADR file (without the .md extension).",
+          description: "The name of the ADR file (without sequence numbers and the .md extension).",
           required: true,
         },
         content: {
@@ -191,7 +191,7 @@ export const toolDefinitions: ToolDefinition[] = [
         },
         changelog_name: {
           type: "string",
-          description: "The desired name for the changelog file (without the .md extension).",
+          description: "The desired name for the changelog file (without sequence numbers and the .md extension).",
         },
       },
       required: ["target_project_dir", "entry_content", "changelog_name"],
@@ -229,8 +229,13 @@ export const toolDefinitions: ToolDefinition[] = [
             "The absolute path to the root of the target project directory where the chat log should be saved locally before uploading. Using an absolute path is highly recommended for reliability.",
           required: true,
         },
+        userId: {
+          type: "string",
+          description: "The unique ID of the user/LLM client (e.g., your GitHub username). You can often get this using `git config user.email`.",
+          required: true,
+        },
       },
-      required: ["target_project_dir"],
+      required: ["target_project_dir", "userId"],
     },
     outputSchema: {
       // Basic output schema based on handler response

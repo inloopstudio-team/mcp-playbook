@@ -3,6 +3,7 @@ import * as path from "path";
 import { v4 as uuidv4 } from "uuid";
 import * as fsUtils from "./fsUtils.js";
 import * as githubApi from "./githubApi.js";
+import * as crypto from "crypto";
 
 // Placeholder for conversation history retrieval
 // In a real MCP server, this would be provided by the framework hosting the server.
@@ -225,75 +226,114 @@ export async function handleUpdateChangelog(
 
 export async function handleSaveAndUploadChatLog(
   targetProjectDir: string,
+  userId: string,
 ): Promise<any> {
-  console.log(`Handling save_and_upload_chat_log for: ${targetProjectDir}`);
+  console.log(`Handling save_and_upload_chat_log for: ${targetProjectDir}, user: ${userId}`);
+  const githubOwner = "dwarvesf";
+  const githubRepo = "prompt-log";
+  const githubBranch = "main"; // Or configure/determine branch
+  const ref = `heads/${githubBranch}`;
+
   try {
-    // 1. Get conversation history (REPLACE THIS PLACEEHOLDER)
-    const conversationHistory = getConversationHistoryPlaceholder(); // TODO: Integrate with actual framework history
+    // Derive GitHub path based on target project name and user ID
+    const projectName = githubApi.deriveProjectNameFromPath(targetProjectDir);
+    const remoteChatDir = path.posix.join(projectName, userId, ".chat");
 
-    // Format history into Markdown
-    let formattedContent = "";
-    for (const turn of conversationHistory) {
-      const role = turn.role.charAt(0).toUpperCase() + turn.role.slice(1); // Capitalize role
-      formattedContent += `## ${role}\n\n${turn.content}\n\n---\n\n`;
-    }
-
-    // 2. Generate filename and local path within target project's .chat dir
-    const now = new Date();
-    const timestamp = now.toISOString().replace(/[:.-]/g, ""); // Create a clean timestamp string
-    const uniqueId = uuidv4().split("-")[0]; // Use part of a UUID for uniqueness
-    const filename = `chat_${timestamp}_${uniqueId}.md`;
+    // Ensure the local .chat directory exists in the target project
     const localChatDir = fsUtils.joinProjectPath(targetProjectDir, ".chat");
-    const localChatPath = fsUtils.joinProjectPath(localChatDir, filename);
-
-    // Ensure the .chat directory exists in the target project
     fsUtils.createDirectory(localChatDir);
 
-    // 3. Save locally using direct FS
-    fsUtils.writeFile(localChatPath, formattedContent);
-    console.log(`Saved chat log locally to: ${localChatPath}`);
+    // Get list of local files in .chat directory
+    const localFiles = fsUtils.listDirectory(localChatDir).filter(file => file.endsWith('.chat'));
 
-    // 4. Prepare for GitHub upload
-    const githubOwner = "dwarvesf";
-    const githubRepo = "prompt-log";
-    const githubBranch = "main"; // Or configure/determine branch
+    if (localFiles.length === 0) {
+        return {
+            status: "success",
+            message: "No chat log files found locally to sync.",
+        };
+    }
 
-    // Derive GitHub path based on target project name from the provided directory
-    const projectName = githubApi.deriveProjectNameFromPath(targetProjectDir);
-    // Path within the dwarvesf/prompt-log repo will be projectName/.chat/filename.md
-    // Use path.posix.join for consistency in GitHub paths
-    const githubPath = path.posix.join(projectName, ".chat", filename);
+    // 1. Get the SHA of the latest commit on the target branch
+    const latestRef = await githubApi.getRef(githubOwner, githubRepo, ref);
+    const latestCommitSha = latestRef.object.sha;
 
-    const commitMessage = `Add chat log from ${projectName}: ${filename}`;
+    // 2. Get the tree SHA from the latest commit
+    const latestCommit = await githubApi.getCommit(githubOwner, githubRepo, latestCommitSha);
+    const baseTreeSha = latestCommit.tree.sha;
 
-    // 5. Upload to GitHub using direct API call
-    console.log(
-      `Uploading to GitHub: ${githubOwner}/${githubRepo}/${githubPath}`,
+    // 3. Get the contents of the latest tree to include existing files
+    // This is needed to build the new tree correctly, including files outside the .chat directory
+    const baseTree = await githubApi.getTree(githubOwner, githubRepo, baseTreeSha);
+
+    // Prepare tree items for the new commit
+    const newTreeItems: githubApi.GitHubCreateTreeItem[] = [];
+
+    // Keep existing files from the base tree, excluding the entire remoteChatDir path
+    // This prevents carrying over old versions of chat files or files that were deleted locally.
+    const filesToKeep = baseTree.tree.filter(item =>
+        !item.path.startsWith(remoteChatDir + '/')
     );
-    const githubResponse = await githubApi.createOrUpdateFileInRepo(
-      githubOwner,
-      githubRepo,
-      githubPath,
-      formattedContent,
-      commitMessage,
-      githubBranch,
-    );
-    console.log(`GitHub upload finished for: ${githubPath}`);
 
-    // Return success response including paths and potentially the GitHub URL
+    for (const item of filesToKeep) {
+        newTreeItems.push({
+            path: item.path,
+            mode: item.mode,
+            type: item.type,
+            sha: item.sha,
+        });
+    }
+
+
+    // Add or update local .chat files
+    for (const filename of localFiles) {
+        const localFilePath = fsUtils.joinProjectPath(localChatDir, filename);
+        const fileContent = fsUtils.readFile(localFilePath);
+
+        // Create a new blob for the file content
+        console.log(`Creating blob for ${filename}...`);
+        const blob = await githubApi.createBlob(githubOwner, githubRepo, fileContent, 'utf-8');
+        console.log(`Blob created with SHA: ${blob.sha}`);
+
+        // Add the new/updated file to the tree items
+        const remoteFilePath = path.posix.join(remoteChatDir, filename);
+        newTreeItems.push({
+            path: remoteFilePath,
+            mode: '100644', // File mode
+            type: 'blob',
+            sha: blob.sha,
+        });
+    }
+
+    // 4. Create a new tree object
+    console.log("Creating new tree...");
+    // Pass the baseTreeSha to create the new tree based on the latest commit's tree
+    const newTree = await githubApi.createTree(githubOwner, githubRepo, newTreeItems, baseTreeSha);
+    console.log(`New tree created with SHA: ${newTree.sha}`);
+
+    // 5. Create a new commit object
+    const commitMessage = `Sync chat logs from ${projectName} for ${userId}`;
+    console.log(`Creating new commit: "${commitMessage}"`);
+    const newCommit = await githubApi.createCommit(githubOwner, githubRepo, commitMessage, newTree.sha, latestCommitSha);
+    console.log(`New commit created with SHA: ${newCommit.sha}`);
+
+    // 6. Update the branch reference to point to the new commit
+    console.log(`Updating branch "${githubBranch}" to commit ${newCommit.sha}`);
+    await githubApi.updateRef(githubOwner, githubRepo, ref, newCommit.sha);
+    console.log(`Branch "${githubBranch}" updated successfully.`);
+
+    // Return success response
     return {
       status: "success",
-      local_path: localChatPath,
-      github_path: githubPath,
-      github_url: githubResponse?.content?.html_url, // Return URL if available
-      message: `Chat log saved locally and uploaded to GitHub.`,
+      message: `Chat log sync complete. Committed changes to ${githubBranch}.`,
+      commit_sha: newCommit.sha,
+      commit_url: newCommit.html_url,
     };
+
   } catch (e: any) {
-    console.error(`Error during chat log save/upload: ${e.message}`);
-    // Catch any other unexpected errors
+    console.error(`Error during chat log sync: ${e.message}`);
     return {
       status: "error",
-      message: `An error occurred during chat log save/upload: ${e.message}`,
+      message: `An error occurred during chat log sync: ${e.message}`,
     };
   }
 }
