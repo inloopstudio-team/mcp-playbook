@@ -2,15 +2,39 @@
 
 A Model Context Protocol (MCP) server for managing project documentation and saving conversation logs within a user-specified target project directory.
 
+## Available Tools
+
+| Tool Name                     | Description                                                                                                                                                                                                                            |
+| :---------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `init_playbook`               | Provides an instruction to the LLM about the purpose of the mcp-playbook server, which is to facilitate local project documentation and enable partial replication of documentation and chat logs for an AI-powered playbook.             |
+| `initialize_docs_structure`   | Initializes the standard documentation folder structure (docs/, docs/specs/, docs/adr/, docs/changelog/, and .chat/) within the specified target project directory.                                                                    |
+| `create_spec`                 | Creates or overwrites a new specification file (e.g., PRD, RFC, architectural planning) in the docs/specs/ directory of the target project. Specification files will be named following a `spec-name.md` convention with sequence numbering. |
+| `create_adr`                  | Creates or overwrites a new Architectural Decision Record (ADR) file in the docs/adr/ directory of the target project. ADR files will be named following an `adr-name.md` convention with sequence numbering.                             |
+| `create_changelog`            | Creates a new, detailed, and user-facing changelog entry file in the docs/changelog/ directory of the target project. Each changelog entry will be a separate file named following a `changelog-entry.md` convention with sequence numbering. |
+| `save_and_upload_chat_log`    | Captures the current conversation history, saves it as a markdown file in the .chat/ directory of the target project, and uploads it to the dwarvesf/prompt-log GitHub repository. Requires a user ID for organization.                 |
+
 ## Overview
 
 This `mcp-playbook` server is a self-contained Node.js/TypeScript application that provides a set of tools accessible via the Model Context Protocol (MCP). Its primary functions are to help LLMs structure documentation within a designated project directory and to save/upload conversation histories. Unlike tools that might rely on external `commander` or `github` environments, this server implements file system operations and GitHub API interactions directly using Node.js's built-in modules (`fs`, `path`, `https`) and libraries like `node-fetch`.
 
 The server operates on a `target_project_dir` specified by the LLM, managing files and directories within that location. It does *not* store documentation or chat logs within its own repository structure.
 
-## Available Tools
+## Tool Details
 
-This server exposes the following MCP tools:
+### `init_playbook`
+
+Provides an instruction to the LLM about the purpose of the mcp-playbook server, which is to facilitate local project documentation and enable partial replication of documentation and chat logs for an AI-powered playbook.
+
+**Parameters:**
+None.
+
+**Returns:**
+A JSON object containing the instruction.
+```json
+{
+  "instruction": "string" // Instruction for the LLM regarding the purpose of the mcp-playbook.
+}
+```
 
 ### `initialize_docs_structure`
 
@@ -30,11 +54,11 @@ A JSON object indicating success or failure.
 
 ### `create_spec`
 
-Creates or overwrites a new specification file (e.g., PRD, RFC) in the `docs/specs/` directory of the target project.
+Creates or overwrites a new specification file (e.g., PRD, RFC, architectural planning) in the `docs/specs/` directory of the target project. Specification files will be named following a `spec-name.md` convention with sequence numbering (e.g., `0001-initial-design.md`).
 
 **Parameters:**
 - `target_project_dir` (string, required): The absolute or relative path to the root of the target project directory.
-- `spec_name` (string, required): The name of the specification file (without the `.md` extension). Basic sanitization is applied.
+- `spec_name` (string, required): The name of the specification file (without sequence numbers and the `.md` extension). Basic sanitization is applied.
 - `content` (string, required): The markdown content of the specification.
 
 **Returns:**
@@ -43,17 +67,17 @@ A JSON object indicating success or failure, including the path if successful.
 {
   "status": "success" | "error",
   "path": "string" | undefined, // Path to the created file if successful
-  "message": "string" // Success or error description
+  "message": "string" // Description of the result or error
 }
 ```
 
 ### `create_adr`
 
-Creates or overwrites a new Architectural Decision Record (ADR) file in the `docs/adr/` directory of the target project.
+Creates or overwrites a new Architectural Decision Record (ADR) file in the `docs/adr/` directory of the target project. ADR files will be named following an `adr-name.md` convention with sequence numbering (e.g., `0001-use-react.md`).
 
 **Parameters:**
-- `target_project_dir` (string, required): The absolute or relative path to the root of the target project directory.
-- `adr_name` (string, required): The name of the ADR file (without the `.md` extension). Basic sanitization is applied.
+- `target_project_dir` (string, required): The absolute path to the root of the target project directory. Using an absolute path is highly recommended for reliability.
+- `adr_name` (string, required): The name of the ADR file (without sequence numbers and the `.md` extension). Basic sanitization is applied.
 - `content` (string, required): The markdown content of the ADR.
 
 **Returns:**
@@ -62,17 +86,18 @@ A JSON object indicating success or failure, including the path if successful.
 {
   "status": "success" | "error",
   "path": "string" | undefined, // Path to the created file if successful
-  "message": "string" // Success or error description
+  "message": "string" // Description of the result or error
 }
 ```
 
 ### `create_changelog`
 
-Appends a new entry to the changelog file (`docs/changelog/changelog.md`) in the target project. If the file does not exist, it will be created.
+Creates a new, detailed, and user-facing changelog entry file in the `docs/changelog/` directory of the target project. Each changelog entry will be a separate file named following a `changelog-entry.md` convention with sequence numbering (e.g., `0001-added-new-feature.md`). Entries should provide comprehensive information about changes, including how to use new features or any impact on existing functionality, rather than being brief summaries.
 
 **Parameters:**
-- `target_project_dir` (string, required): The absolute or relative path to the root of the target project directory.
+- `target_project_dir` (string, required): The absolute path to the root of the target project directory. Using an absolute path is highly recommended for reliability.
 - `entry_content` (string, required): The markdown content of the new changelog entry.
+- `changelog_name` (string, required): The desired name for the changelog file (without sequence numbers and the `.md` extension).
 
 **Returns:**
 A JSON object indicating success or failure, including the path if successful.
@@ -80,16 +105,17 @@ A JSON object indicating success or failure, including the path if successful.
 {
   "status": "success" | "error",
   "path": "string" | undefined, // Path to the updated file if successful
-  "message": "string" // Success or error description
+  "message": "string" // Description of the result or error
 }
 ```
 
 ### `save_and_upload_chat_log`
 
-Captures the current conversation history, saves it as a uniquely named markdown file in the `.chat/` directory of the target project, and uploads it to the `dwarvesf/prompt-log` GitHub repository.
+Captures the current conversation history, saves it as a uniquely named markdown file in the `.chat/` directory of the target project, and uploads it to the `dwarvesf/prompt-log` GitHub repository. Requires a user ID to organize logs by user.
 
 **Parameters:**
-- `target_project_dir` (string, required): The absolute or relative path to the root of the target project directory where the chat log should be saved locally before uploading.
+- `target_project_dir` (string, required): The absolute path to the root of the target project directory where the chat log should be saved locally before uploading. Using an absolute path is highly recommended for reliability.
+- `userId` (string, required): The unique ID of the user/LLM client (e.g., your GitHub username). You can often get this using `git config user.email`.
 
 **Returns:**
 A JSON object indicating success or failure, including the local path, GitHub path, and potentially the GitHub URL if successful.
@@ -99,7 +125,9 @@ A JSON object indicating success or failure, including the local path, GitHub pa
   "local_path": "string" | undefined, // Path to the locally saved file
   "github_path": "string" | undefined, // Path within the GitHub repository
   "github_url": "string" | undefined, // URL of the file on GitHub
-  "message": "string" // Success or error description
+  "commit_sha": "string" | undefined, // SHA of the commit if successful
+  "commit_url": "string" | undefined, // URL of the commit if successful
+  "message": "string" // Description of the result or error
 }
 ```
 
@@ -153,7 +181,7 @@ Ensure `.env` is added to your `.gitignore` file.
 
 ## Usage with Claude Desktop (Conceptual)
 
-To use this MCP server with Claude Desktop, you would add a configuration entry to your Claude Desktop settings. The exact `command` and `args` will depend on how you choose to run the server (e.g., directly via `node` or using Docker). 
+To use this MCP server with Claude Desktop, you would add a configuration entry to your Claude Desktop settings. The exact `command` and `args` will depend on how you choose to run the server (e.g., directly via `node` or using Docker).
 
 Example configuration for running directly:
 
@@ -166,7 +194,7 @@ Example configuration for running directly:
         "/path/to/your/mcp-playbook/dist/src/index.js"
       ],
       "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "your_github_token_here" // Or manage environment variables separately
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "your_github_token_here"
       }
     }
   }
@@ -185,9 +213,12 @@ Example configuration for running with Docker:
         "-i",
         "--rm",
         "-e",
-        "GITHUB_PERSONAL_ACCESS_TOKEN", // Pass the env var from the agent environment
-        "mcp-playbook:latest" // Your built image name
+        "GITHUB_PERSONAL_ACCESS_TOKEN",
+        "ghcr.io/dwarvesf/mcp-playbook:latest"
       ]
+    },
+    "env": {
+      "GITHUB_PERSONAL_ACCESS_TOKEN": "your_github_token_here"
     }
   }
 }
