@@ -81,7 +81,7 @@ export const toolDefinitions: ToolDefinition[] = [
   {
     name: "create_spec",
     description:
-      "Creates or overwrites a new specification file (e.g., PRD, RFC) in the docs/specs/ directory of the target project.",
+      "Creates or overwrites a new specification file (e.g., PRD, RFC, architectural planning) in the docs/specs/ directory of the target project.",
     inputSchema: {
       type: "object",
       properties: {
