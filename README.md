@@ -66,7 +66,7 @@ A JSON object indicating success or failure, including the path if successful.
 }
 ```
 
-### `update_changelog`
+### `create_changelog`
 
 Appends a new entry to the changelog file (`docs/changelog/changelog.md`) in the target project. If the file does not exist, it will be created.
 

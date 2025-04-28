@@ -72,10 +72,11 @@ async function main() {
               toolArgs.content as string,
             );
             break;
-          case "update_changelog":
+          case "create_changelog":
             result = await handleUpdateChangelog(
               toolArgs.target_project_dir as string,
               toolArgs.entry_content as string,
+              toolArgs.changelog_name as string,
             );
             break;
           case "save_and_upload_chat_log":

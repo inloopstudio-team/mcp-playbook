@@ -81,7 +81,7 @@ export const toolDefinitions: ToolDefinition[] = [
   {
     name: "create_spec",
     description:
-      "Creates or overwrites a new specification file (e.g., PRD, RFC, architectural planning) in the docs/specs/ directory of the target project.",
+      "Creates or overwrites a new specification file (e.g., PRD, RFC, architectural planning) in the docs/specs/ directory of the target project. Specification files will be named following a `spec-name.md` convention.",
     inputSchema: {
       type: "object",
       properties: {
@@ -128,7 +128,7 @@ export const toolDefinitions: ToolDefinition[] = [
   {
     name: "create_adr",
     description:
-      "Creates or overwrites a new Architectural Decision Record (ADR) file in the docs/adr/ directory of the target project.",
+      "Creates or overwrites a new Architectural Decision Record (ADR) file in the docs/adr/ directory of the target project. ADR files will be named following an `adr-name.md` convention.",
     inputSchema: {
       type: "object",
       properties: {
@@ -172,9 +172,9 @@ export const toolDefinitions: ToolDefinition[] = [
     },
   },
   {
-    name: "update_changelog",
+    name: "create_changelog",
     description:
-      "Appends a new entry to the changelog file (docs/changelog/changelog.md) in the target project.",
+      "Creates a new, detailed, and user-facing changelog entry file in the docs/changelog/ directory of the target project. Each changelog entry will be a separate file named following a `changelog-entry.md` convention. Entries should provide comprehensive information about changes, including how to use new features or any impact on existing functionality, rather than being brief summaries.",
     inputSchema: {
       type: "object",
       properties: {
@@ -189,8 +189,12 @@ export const toolDefinitions: ToolDefinition[] = [
           description: "The markdown content of the new changelog entry.",
           required: true,
         },
+        changelog_name: {
+          type: "string",
+          description: "The desired name for the changelog file (without the .md extension).",
+        },
       },
-      required: ["target_project_dir", "entry_content"],
+      required: ["target_project_dir", "entry_content", "changelog_name"],
     },
     outputSchema: {
       // Basic output schema based on handler response

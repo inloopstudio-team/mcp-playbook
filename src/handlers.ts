@@ -46,7 +46,7 @@ Key Capabilities:
 
 When working on a task, leverage these tools to maintain accurate and up-to-date project documentation.
 
-Upon completing a task or reaching a significant milestone, ALWAYS ensure your progress is documented using the appropriate tools (e.g., create_spec, create_adr, update_changelog) and that the conversation history is saved and synced using the save_and_upload_chat_log tool.`;
+Upon completing a task or reaching a significant milestone, ALWAYS ensure your progress is documented using the appropriate tools (e.g., create_spec, create_adr, create_changelog) and that the conversation history is saved and synced using the save_and_upload_chat_log tool.`;
   return { instruction };
 }
 
@@ -89,17 +89,37 @@ export async function handleCreateSpec(
   console.log(
     `Handling create_spec for: ${targetProjectDir}, spec: ${specName}`,
   );
-  // Ensure specName doesn't contain path separators to avoid traversal issues
-  const cleanSpecName = specName.replace(/[^a-zA-Z0-9_-]/g, "_"); // Basic sanitization
-  const filePath = fsUtils.joinProjectPath(
-    targetProjectDir,
-    "docs",
-    "specs",
-    `${cleanSpecName}.md`,
-  );
+  const specsDir = fsUtils.joinProjectPath(targetProjectDir, "docs", "specs");
+
   try {
-    fsUtils.writeFile(filePath, content);
-    return { status: "success", path: filePath };
+    // Ensure directory exists
+    fsUtils.createDirectory(specsDir);
+
+    let nextSequenceNumber = 1;
+    try {
+        const files = fsUtils.listDirectory(specsDir);
+        const numberedFiles = files.filter((file: string) => /^\d{4}-.*\.md$/.test(file));
+        if (numberedFiles.length > 0) {
+            const numbers = numberedFiles.map((file: string) => parseInt(file.substring(0, 4), 10));
+            const maxNumber = Math.max(...numbers);
+            nextSequenceNumber = maxNumber + 1;
+        }
+    } catch (e: any) {
+        console.warn(`Could not read specs directory or no numbered files found, starting sequence from 1: ${e.message}`);
+    }
+
+    const sequencePrefix = nextSequenceNumber.toString().padStart(4, '0');
+
+    // Sanitize the provided specName for the filename slug
+    const slug = specName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9_-]/g, '').substring(0, 50); // Basic slug generation
+
+    const newFilename = `${sequencePrefix}-${slug}.md`;
+    const newFilePath = fsUtils.joinProjectPath(specsDir, newFilename);
+
+    // Write the content to the new file
+    fsUtils.writeFile(newFilePath, content);
+
+    return { status: "success", path: newFilePath, message: `Created new spec file: ${newFilename}` };
   } catch (e: any) {
     console.error(`Error in handleCreateSpec: ${e.message}`);
     return {
@@ -115,17 +135,37 @@ export async function handleCreateAdr(
   content: string,
 ): Promise<any> {
   console.log(`Handling create_adr for: ${targetProjectDir}, adr: ${adrName}`);
-  // Ensure adrName doesn't contain path separators
-  const cleanAdrName = adrName.replace(/[^a-zA-Z0-9_-]/g, "_"); // Basic sanitization
-  const filePath = fsUtils.joinProjectPath(
-    targetProjectDir,
-    "docs",
-    "adr",
-    `${cleanAdrName}.md`,
-  );
+  const adrDir = fsUtils.joinProjectPath(targetProjectDir, "docs", "adr");
+
   try {
-    fsUtils.writeFile(filePath, content);
-    return { status: "success", path: filePath };
+    // Ensure directory exists
+    fsUtils.createDirectory(adrDir);
+
+    let nextSequenceNumber = 1;
+    try {
+        const files = fsUtils.listDirectory(adrDir);
+        const numberedFiles = files.filter((file: string) => /^\d{4}-.*\.md$/.test(file));
+        if (numberedFiles.length > 0) {
+            const numbers = numberedFiles.map((file: string) => parseInt(file.substring(0, 4), 10));
+            const maxNumber = Math.max(...numbers);
+            nextSequenceNumber = maxNumber + 1;
+        }
+    } catch (e: any) {
+        console.warn(`Could not read adr directory or no numbered files found, starting sequence from 1: ${e.message}`);
+    }
+
+    const sequencePrefix = nextSequenceNumber.toString().padStart(4, '0');
+
+    // Sanitize the provided adrName for the filename slug
+    const slug = adrName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9_-]/g, '').substring(0, 50); // Basic slug generation
+
+    const newFilename = `${sequencePrefix}-${slug}.md`;
+    const newFilePath = fsUtils.joinProjectPath(adrDir, newFilename);
+
+    // Write the content to the new file
+    fsUtils.writeFile(newFilePath, content);
+
+    return { status: "success", path: newFilePath, message: `Created new ADR file: ${newFilename}` };
   } catch (e: any) {
     console.error(`Error in handleCreateAdr: ${e.message}`);
     return {
@@ -138,41 +178,47 @@ export async function handleCreateAdr(
 export async function handleUpdateChangelog(
   targetProjectDir: string,
   entryContent: string,
+  changelogName: string, // changelogName is now required
 ): Promise<any> {
-  console.log(`Handling update_changelog for: ${targetProjectDir}`);
-  const filePath = fsUtils.joinProjectPath(
-    targetProjectDir,
-    "docs",
-    "changelog",
-    "changelog.md",
-  );
+  console.log(`Handling create_changelog for: ${targetProjectDir}`);
+  const changelogDir = fsUtils.joinProjectPath(targetProjectDir, "docs", "changelog");
+
   try {
-    // Read existing content, handle file not existing
-    let existingContent = "";
+    // Ensure directory exists
+    fsUtils.createDirectory(changelogDir);
+
+    let nextSequenceNumber = 1;
     try {
-      existingContent = fsUtils.readFile(filePath);
+        const files = fsUtils.listDirectory(changelogDir);
+        const numberedFiles = files.filter((file: string) => /^\d{4}-.*\.md$/.test(file));
+        if (numberedFiles.length > 0) {
+            const numbers = numberedFiles.map((file: string) => parseInt(file.substring(0, 4), 10));
+            const maxNumber = Math.max(...numbers);
+            nextSequenceNumber = maxNumber + 1;
+        }
     } catch (e: any) {
-      if ((e as any).code !== "ENOENT") {
-        // Re-throw if it's an actual read error, not just not found
-        throw e;
-      }
-      // File not found is expected sometimes, start with empty
-      console.warn(`Changelog file not found at ${filePath}, starting fresh.`);
+        // If directory doesn't exist or other read error, start with 1
+        console.warn(`Could not read changelog directory or no numbered files found, starting sequence from 1: ${e.message}`);
     }
 
-    // Append new entry (example simple format)
-    const now = new Date();
-    const timestamp = now.toISOString(); // ISO format is good for sorting
-    const newEntry = `\n\n## ${timestamp}\n\n${entryContent}\n`; // Add new entry structure
+    const sequencePrefix = nextSequenceNumber.toString().padStart(4, '0');
 
-    // Write updated content back
-    fsUtils.writeFile(filePath, existingContent + newEntry); // Append new entry
-    return { status: "success", path: filePath };
+    // Sanitize the provided changelogName for the filename slug
+    const baseName = changelogName; // changelogName is now typed as string
+    const slug = baseName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9_-]/g, '').substring(0, 50); // Basic slug generation
+
+    const newFilename = `${sequencePrefix}-${slug}.md`;
+    const newFilePath = fsUtils.joinProjectPath(changelogDir, newFilename);
+
+    // Write the content to the new file
+    fsUtils.writeFile(newFilePath, entryContent);
+
+    return { status: "success", path: newFilePath, message: `Created new changelog entry: ${newFilename}` };
   } catch (e: any) {
     console.error(`Error in handleUpdateChangelog: ${e.message}`);
     return {
       status: "error",
-      message: `Failed to update changelog: ${e.message}`,
+      message: `Failed to create changelog entry file: ${e.message}`,
     };
   }
 }
