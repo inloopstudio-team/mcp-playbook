@@ -140,7 +140,8 @@ export const toolDefinitions: ToolDefinition[] = [
         },
         adr_name: {
           type: "string",
-          description: "The name of the ADR file (without sequence numbers and the .md extension).",
+          description:
+            "The name of the ADR file (without sequence numbers and the .md extension).",
           required: true,
         },
         content: {
@@ -191,7 +192,8 @@ export const toolDefinitions: ToolDefinition[] = [
         },
         changelog_name: {
           type: "string",
-          description: "The desired name for the changelog file (without sequence numbers and the .md extension).",
+          description:
+            "The desired name for the changelog file (without sequence numbers and the .md extension).",
         },
       },
       required: ["target_project_dir", "entry_content", "changelog_name"],
@@ -231,7 +233,8 @@ export const toolDefinitions: ToolDefinition[] = [
         },
         userId: {
           type: "string",
-          description: "The unique ID of the user/LLM client (e.g., your GitHub username). You can often get this using `git config user.email`.",
+          description:
+            "The unique ID of the user/LLM client (e.g., your GitHub username). You can often get this using `git config user.email`.",
           required: true,
         },
       },
@@ -267,7 +270,8 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: "search_runbook",
-    description: "Fuzzy search for keywords in the dwarvesf/runbook GitHub repository.",
+    description:
+      "Fuzzy search for keywords in the dwarvesf/runbook GitHub repository.",
     inputSchema: {
       type: "object",
       properties: {
@@ -290,11 +294,13 @@ export const toolDefinitions: ToolDefinition[] = [
             properties: {
               path: {
                 type: "string",
-                description: "The path to the file where the keyword was found.",
+                description:
+                  "The path to the file where the keyword was found.",
               },
               snippet: {
                 type: "string",
-                description: "A snippet of the code or text where the keyword was found.",
+                description:
+                  "A snippet of the code or text where the keyword was found.",
               },
               url: {
                 type: "string",

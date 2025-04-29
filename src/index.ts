@@ -87,9 +87,7 @@ async function main() {
             );
             break;
           case "search_runbook":
-            result = await handleSearchRunbook(
-              toolArgs.keyword as string,
-            );
+            result = await handleSearchRunbook(toolArgs.keyword as string);
             break;
           default:
             result = { status: "error", message: `Unknown tool: ${toolName}` };
