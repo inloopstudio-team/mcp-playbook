@@ -1,23 +1,14 @@
 // src/githubApi.ts
 import * as path from "path";
-import fetch, { Response } from "node-fetch";
 import { Buffer } from "buffer";
+import { Octokit } from "octokit";
+import { RequestError } from "@octokit/request-error";
 
 const GITHUB_API_BASE_URL = "https://api.github.com";
 
-function getGithubAuthHeader(): { [key: string]: string } {
-  const token = process.env.GITHUB_PERSONAL_ACCESS_TOKEN;
-  if (!token) {
-    throw new Error(
-      "GITHUB_PERSONAL_ACCESS_TOKEN environment variable is not set.",
-    );
-  }
-  return {
-    Authorization: `token ${token}`,
-    Accept: "application/vnd.github.v3+json",
-    "Content-Type": "application/json",
-  };
-}
+const octokit = new Octokit({
+  auth: process.env.GITHUB_PERSONAL_ACCESS_TOKEN,
+});
 
 export interface GitHubContentItem {
   name: string;
@@ -50,48 +41,25 @@ export async function getContents(
   console.log(
     `Attempting to get contents from GitHub: ${owner}/${repo}/${filePath} on branch ${branch}`,
   );
-  const url = `${GITHUB_API_BASE_URL}/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`;
-
-  const headers = getGithubAuthHeader();
 
   try {
-    const response: Response = await fetch(url, {
-      method: "GET",
-      headers: headers,
+    const response = await octokit.rest.repos.getContent({
+      owner,
+      repo,
+      path: filePath,
+      ref: branch,
     });
 
-    if (!response.ok) {
-       // If the file/directory doesn't exist, GitHub returns 404.
-       // We should not throw an error in this specific case, but return an empty array or null
-       if (response.status === 404) {
-           console.log(`Content not found at ${filePath}. Returning empty.`);
-           return []; // Return empty array for consistency when listing directory contents
-       }
+    // The response data structure depends on whether filePath is a file or a directory.
+    // Octokit's type definition for getContent is a bit complex, so we'll cast for now.
+    // We also need to handle the case where the content is not found (404), which Octokit throws as an error.
+    return response.data as GitHubContentsResponse;
 
-      let errorDetail = `Status: ${response.status} ${response.statusText}`;
-      try {
-        const errorBody = await response.json();
-        errorDetail += `, Body: ${JSON.stringify(errorBody, null, 2)}`;
-        console.error(`GitHub API error response body:`, errorBody);
-      } catch (jsonErr) {
-        try {
-          const textBody = await response.text();
-          errorDetail += `, Raw Body: ${textBody}`;
-          console.error(`GitHub API raw error response body:`, textBody);
-        } catch (textErr) {
-          console.error("Could not read GitHub API error response body.");
-        }
-      }
-      throw new Error(
-        `GitHub API GET request failed for ${filePath}: ${errorDetail}`,
-      );
-    }
-
-    const responseData = (await response.json()) as GitHubContentsResponse;
-    console.log(`GitHub API response status: ${response.status}`);
-
-    return responseData;
   } catch (e: any) {
+    if (e instanceof RequestError && e.status === 404) {
+      console.log(`Content not found at ${filePath}. Returning empty.`);
+      return []; // Return empty array for consistency when listing directory contents
+    }
     console.error(`GitHub API GET request error for ${filePath}: ${e.message}`);
     throw e; // Re-throw for the tool handler
   }
@@ -112,15 +80,14 @@ interface GitHubRef {
 
 export async function getRef(owner: string, repo: string, ref: string): Promise<GitHubRef> {
     console.log(`Attempting to get ref from GitHub: ${owner}/${repo}/${ref}`);
-    const url = `${GITHUB_API_BASE_URL}/repos/${owner}/${repo}/git/ref/${ref}`;
-    const headers = getGithubAuthHeader();
 
     try {
-        const response = await fetch(url, { method: 'GET', headers });
-        if (!response.ok) {
-            throw new Error(`GitHub API GET ref failed for ${ref}: Status: ${response.status} ${response.statusText}`);
-        }
-        return await response.json() as GitHubRef;
+        const response = await octokit.rest.git.getRef({
+            owner,
+            repo,
+            ref,
+        });
+        return response.data as GitHubRef;
     } catch (e: any) {
         console.error(`GitHub API GET ref error for ${ref}: ${e.message}`);
         throw e;
@@ -147,15 +114,14 @@ interface GitHubCommit {
 
 export async function getCommit(owner: string, repo: string, commitSha: string): Promise<GitHubCommit> {
     console.log(`Attempting to get commit from GitHub: ${owner}/${repo}/${commitSha}`);
-    const url = `${GITHUB_API_BASE_URL}/repos/${owner}/${repo}/git/commits/${commitSha}`;
-    const headers = getGithubAuthHeader();
 
     try {
-        const response = await fetch(url, { method: 'GET', headers });
-        if (!response.ok) {
-            throw new Error(`GitHub API GET commit failed for ${commitSha}: Status: ${response.status} ${response.statusText}`);
-        }
-        return await response.json() as GitHubCommit;
+        const response = await octokit.rest.git.getCommit({
+            owner,
+            repo,
+            commit_sha: commitSha,
+        });
+        return response.data as GitHubCommit;
     } catch (e: any) {
         console.error(`GitHub API GET commit error for ${commitSha}: ${e.message}`);
         throw e;
@@ -180,15 +146,14 @@ interface GitHubTree {
 
 export async function getTree(owner: string, repo: string, treeSha: string): Promise<GitHubTree> {
     console.log(`Attempting to get tree from GitHub: ${owner}/${repo}/${treeSha}`);
-    const url = `${GITHUB_API_BASE_URL}/repos/${owner}/${repo}/git/trees/${treeSha}`;
-    const headers = getGithubAuthHeader();
 
     try {
-        const response = await fetch(url, { method: 'GET', headers });
-        if (!response.ok) {
-            throw new Error(`GitHub API GET tree failed for ${treeSha}: Status: ${response.status} ${response.statusText}`);
-        }
-        return await response.json() as GitHubTree;
+        const response = await octokit.rest.git.getTree({
+            owner,
+            repo,
+            tree_sha: treeSha,
+        });
+        return response.data as GitHubTree;
     } catch (e: any) {
         console.error(`GitHub API GET tree error for ${treeSha}: ${e.message}`);
         throw e;
@@ -202,8 +167,6 @@ interface GitHubBlobResponse {
 
 export async function createBlob(owner: string, repo: string, content: string, encoding: string = 'utf-8'): Promise<GitHubBlobResponse> {
     console.log(`Attempting to create blob in GitHub: ${owner}/${repo}`);
-    const url = `${GITHUB_API_BASE_URL}/repos/${owner}/${repo}/git/blobs`;
-    const headers = getGithubAuthHeader();
 
     const payload = {
         content: content,
@@ -211,20 +174,12 @@ export async function createBlob(owner: string, repo: string, content: string, e
     };
 
     try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify(payload),
+        const response = await octokit.rest.git.createBlob({
+            owner,
+            repo,
+            ...payload,
         });
-        if (!response.ok) {
-            let errorDetail = `Status: ${response.status} ${response.statusText}`;
-            try {
-                const errorBody = await response.json();
-                errorDetail += `, Body: ${JSON.stringify(errorBody, null, 2)}`;
-            } catch (jsonErr) { /* ignore */ }
-            throw new Error(`GitHub API POST blob failed: ${errorDetail}`);
-        }
-        return await response.json() as GitHubBlobResponse;
+        return response.data as GitHubBlobResponse;
     } catch (e: any) {
         console.error(`GitHub API POST blob error: ${e.message}`);
         throw e;
@@ -247,8 +202,6 @@ interface GitHubCreateTreeResponse {
 
 export async function createTree(owner: string, repo: string, treeItems: GitHubCreateTreeItem[], baseTreeSha?: string): Promise<GitHubCreateTreeResponse> {
     console.log(`Attempting to create tree in GitHub: ${owner}/${repo}`);
-    const url = `${GITHUB_API_BASE_URL}/repos/${owner}/${repo}/git/trees`;
-    const headers = getGithubAuthHeader();
 
     const payload: any = {
         tree: treeItems,
@@ -258,20 +211,12 @@ export async function createTree(owner: string, repo: string, treeItems: GitHubC
     }
 
     try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify(payload),
+        const response = await octokit.rest.git.createTree({
+            owner,
+            repo,
+            ...payload,
         });
-        if (!response.ok) {
-            let errorDetail = `Status: ${response.status} ${response.statusText}`;
-            try {
-                const errorBody = await response.json();
-                errorDetail += `, Body: ${JSON.stringify(errorBody, null, 2)}`;
-            } catch (jsonErr) { /* ignore */ }
-            throw new Error(`GitHub API POST tree failed: ${errorDetail}`);
-        }
-        return await response.json() as GitHubCreateTreeResponse;
+        return response.data as GitHubCreateTreeResponse;
     } catch (e: any) {
         console.error(`GitHub API POST tree error: ${e.message}`);
         throw e;
@@ -299,8 +244,6 @@ interface GitHubCreateCommitResponse {
 
 export async function createCommit(owner: string, repo: string, message: string, treeSha: string, parentCommitSha: string): Promise<GitHubCreateCommitResponse> {
     console.log(`Attempting to create commit in GitHub: ${owner}/${repo}`);
-    const url = `${GITHUB_API_BASE_URL}/repos/${owner}/${repo}/git/commits`;
-    const headers = getGithubAuthHeader();
 
     const payload = {
         message: message,
@@ -309,20 +252,12 @@ export async function createCommit(owner: string, repo: string, message: string,
     };
 
     try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify(payload),
+        const response = await octokit.rest.git.createCommit({
+            owner,
+            repo,
+            ...payload,
         });
-        if (!response.ok) {
-            let errorDetail = `Status: ${response.status} ${response.statusText}`;
-            try {
-                const errorBody = await response.json();
-                errorDetail += `, Body: ${JSON.stringify(errorBody, null, 2)}`;
-            } catch (jsonErr) { /* ignore */ }
-            throw new Error(`GitHub API POST commit failed: ${errorDetail}`);
-        }
-        return await response.json() as GitHubCreateCommitResponse;
+        return response.data as GitHubCreateCommitResponse;
     } catch (e: any) {
         console.error(`GitHub API POST commit error: ${e.message}`);
         throw e;
@@ -342,8 +277,6 @@ interface GitHubUpdateRefResponse {
 
 export async function updateRef(owner: string, repo: string, ref: string, commitSha: string, force: boolean = false): Promise<GitHubUpdateRefResponse> {
     console.log(`Attempting to update ref in GitHub: ${owner}/${repo}/${ref}`);
-    const url = `${GITHUB_API_BASE_URL}/repos/${owner}/${repo}/git/refs/${ref}`;
-    const headers = getGithubAuthHeader();
 
     const payload = {
         sha: commitSha,
@@ -351,20 +284,13 @@ export async function updateRef(owner: string, repo: string, ref: string, commit
     };
 
     try {
-        const response = await fetch(url, {
-            method: 'PATCH',
-            headers: headers,
-            body: JSON.stringify(payload),
+        const response = await octokit.rest.git.updateRef({
+            owner,
+            repo,
+            ref,
+            ...payload,
         });
-        if (!response.ok) {
-            let errorDetail = `Status: ${response.status} ${response.statusText}`;
-            try {
-                const errorBody = await response.json();
-                errorDetail += `, Body: ${JSON.stringify(errorBody, null, 2)}`;
-            } catch (jsonErr) { /* ignore */ }
-            throw new Error(`GitHub API PATCH ref failed: ${errorDetail}`);
-        }
-        return await response.json() as GitHubUpdateRefResponse;
+        return response.data as GitHubUpdateRefResponse;
     } catch (e: any) {
         console.error(`GitHub API PATCH ref error: ${e.message}`);
     throw e;
@@ -508,26 +434,16 @@ interface GitHubSearchCodeResponse {
 
 export async function searchCode(owner: string, repo: string, query: string): Promise<GitHubSearchCodeResponse> {
     console.log(`Attempting to search code in GitHub: ${owner}/${repo} with query "${query}"`);
-    // The search query format is "q=keyword+in:file+repo:owner/repo"
-    const encodedQuery = encodeURIComponent(`${query} repo:${owner}/${repo}`);
-    const url = `${GITHUB_API_BASE_URL}/search/code?q=${encodedQuery}`;
-
-    const headers = getGithubAuthHeader();
-    // GitHub Search API requires a specific Accept header for text matches
-    headers['Accept'] = 'application/vnd.github.text-match+json';
-
 
     try {
-        const response = await fetch(url, { method: 'GET', headers });
-        if (!response.ok) {
-            let errorDetail = `Status: ${response.status} ${response.statusText}`;
-            try {
-                const errorBody = await response.json();
-                errorDetail += `, Body: ${JSON.stringify(errorBody, null, 2)}`;
-            } catch (jsonErr) { /* ignore */ }
-            throw new Error(`GitHub API GET search code failed: ${errorDetail}`);
-        }
-        return await response.json() as GitHubSearchCodeResponse;
+        const response = await octokit.rest.search.code({
+            q: `${query} repo:${owner}/${repo}`,
+            // GitHub Search API requires a specific Accept header for text matches
+            headers: {
+                'Accept': 'application/vnd.github.text-match+json'
+            }
+        });
+        return response.data as GitHubSearchCodeResponse;
     } catch (e: any) {
         console.error(`GitHub API GET search code error: ${e.message}`);
         throw e;
@@ -555,15 +471,14 @@ export async function createOrUpdateFileInRepo(
   console.log(
     `Attempting to create/update file in GitHub: ${owner}/${repo}/${filePath} on branch ${branch}`,
   );
-  const url = `${GITHUB_API_BASE_URL}/repos/${owner}/${repo}/contents/${filePath}`;
 
-  const headers = getGithubAuthHeader();
-  const encodedContent = Buffer.from(content, "utf-8").toString("base64");
-
-  const payload: any = { // Use 'any' for now to easily add optional sha
-    message: message,
-    content: encodedContent,
-    branch: branch,
+  const payload: any = {
+    owner,
+    repo,
+    path: filePath,
+    message,
+    content: Buffer.from(content, "utf-8").toString("base64"),
+    branch,
   };
 
   if (sha) {
@@ -571,35 +486,8 @@ export async function createOrUpdateFileInRepo(
   }
 
   try {
-    const response: Response = await fetch(url, {
-      method: "PUT",
-      headers: headers,
-      body: JSON.stringify(payload),
-    });
+    const response: any = await octokit.rest.repos.createOrUpdateFileContents(payload);
 
-    if (!response.ok) {
-      let errorDetail = `Status: ${response.status} ${response.statusText}`;
-      try {
-        // Attempt to parse JSON body for more specific error info
-        const errorBody = await response.json();
-        errorDetail += `, Body: ${JSON.stringify(errorBody, null, 2)}`;
-        console.error(`GitHub API error response body:`, errorBody);
-      } catch (jsonErr) {
-        // If JSON parsing fails, try getting the raw text body
-        try {
-          const textBody = await response.text();
-          errorDetail += `, Raw Body: ${textBody}`;
-          console.error(`GitHub API raw error response body:`, textBody);
-        } catch (textErr) {
-          console.error("Could not read GitHub API error response body.");
-        }
-      }
-      throw new Error(
-        `GitHub API request failed for ${filePath}: ${errorDetail}`,
-      );
-    }
-
-    const responseData = (await response.json()) as any; // Changed type to any
     console.log(`GitHub API response status: ${response.status}`);
 
     if (response.status === 201) {
@@ -613,7 +501,7 @@ export async function createOrUpdateFileInRepo(
       // Still consider it a success if status is 200 or 201, but log the unexpected code
     }
 
-    return responseData;
+    return response.data;
   } catch (e: any) {
     console.error(`GitHub API request error for ${filePath}: ${e.message}`);
     throw e; // Re-throw for the tool handler
