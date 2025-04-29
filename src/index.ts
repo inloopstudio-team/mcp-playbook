@@ -15,7 +15,8 @@ import {
   handleUpdateChangelog,
   handleSaveAndUploadChatLog,
   handleInitPlaybook,
-  handleSearchRunbook, // Import the new handler
+  handleSearchRunbook,
+  handleSuggestRunbook, // Import the new handler
 } from "./handlers.js";
 
 // Optional: Load environment variables from .env in local development
@@ -88,6 +89,18 @@ async function main() {
             break;
           case "search_runbook":
             result = await handleSearchRunbook(toolArgs.keyword as string);
+            break;
+          case "suggest_runbook":
+            result = await handleSuggestRunbook(
+              toolArgs.content as string,
+              toolArgs.target_folder as string,
+              toolArgs.filename_slug as string | undefined,
+              toolArgs.pr_number as number | undefined,
+              toolArgs.branch_name as string | undefined,
+              toolArgs.commit_message as string | undefined,
+              toolArgs.pr_title as string | undefined,
+              toolArgs.pr_body as string | undefined,
+            );
             break;
           default:
             result = { status: "error", message: `Unknown tool: ${toolName}` };

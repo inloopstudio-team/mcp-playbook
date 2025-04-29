@@ -491,6 +491,92 @@ export async function searchCode(
   }
 }
 
+// Function to create a new branch
+export async function createBranch(
+  owner: string,
+  repo: string,
+  branch: string,
+  fromBranch: string = "main",
+): Promise<any> {
+  console.log(
+    `Attempting to create branch ${branch} from ${fromBranch} in ${owner}/${repo}`,
+  );
+  try {
+    // Get the SHA of the branch to fork from
+    const ref = await octokit.rest.git.getRef({
+      owner,
+      repo,
+      ref: `heads/${fromBranch}`,
+    });
+    const sha = ref.data.object.sha;
+
+    // Create the new branch
+    const response = await octokit.rest.git.createRef({
+      owner,
+      repo,
+      ref: `refs/heads/${branch}`,
+      sha,
+    });
+    return response.data;
+  } catch (e: any) {
+    console.error(`GitHub API create branch error: ${e.message}`);
+    throw e;
+  }
+}
+
+// Function to get a pull request
+export async function getPullRequest(
+  owner: string,
+  repo: string,
+  pullNumber: number,
+): Promise<any> {
+  console.log(`Attempting to get PR ${pullNumber} from ${owner}/${repo}`);
+  try {
+    const response = await octokit.rest.pulls.get({
+      owner,
+      repo,
+      pull_number: pullNumber,
+    });
+    return response.data;
+  } catch (e: any) {
+    console.error(`GitHub API get PR error: ${e.message}`);
+    throw e;
+  }
+}
+
+// Function to create a pull request
+export async function createPullRequest(
+  owner: string,
+  repo: string,
+  title: string,
+  head: string, // branch with changes
+  base: string, // branch to merge into
+  body?: string,
+  draft?: boolean,
+  maintainerCanModify?: boolean,
+): Promise<any> {
+  console.log(
+    `Attempting to create PR in ${owner}/${repo} from ${head} to ${base}`,
+  );
+  try {
+    const response = await octokit.rest.pulls.create({
+      owner,
+      repo,
+      title,
+      head,
+      base,
+      body,
+      draft,
+      maintainer_can_modify: maintainerCanModify,
+    });
+    return response.data;
+  } catch (e: any) {
+    console.error(`GitHub API create PR error: ${e.message}`);
+    throw e;
+  }
+}
+
+
 // Utility to derive a project name from a path
 export function deriveProjectNameFromPath(projectPath: string): string {
   const normalizedPath = path.normalize(projectPath);

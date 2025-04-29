@@ -7,7 +7,8 @@ interface ToolProperty {
   required?: boolean; // For simple types within an object
   items?: ToolSchema; // For array types, the schema of the array elements
   properties?: { [key: string]: ToolProperty }; // For object types, the properties of the object
-  // Add other JSON schema keywords if needed (e.g., enum, format)
+  enum?: (string | number | boolean)[]; // Add enum property
+  // Add other JSON schema keywords if needed (e.g., format)
 }
 
 interface ToolSchema {
@@ -319,6 +320,81 @@ export const toolDefinitions: ToolDefinition[] = [
     },
   },
   // Add more tools here as needed in the future
+  {
+    name: "suggest_runbook",
+    description:
+      "Creates or updates a Pull Request in the dwarvesf/runbook repository with a new runbook entry.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        content: {
+          type: "string",
+          description: "The markdown content of the runbook entry. Include frontmatter (--- title: ..., description: ..., date: ..., authors: ..., tags: ... ---) at the beginning for better organization.",
+          required: true,
+        },
+        target_folder: {
+          type: "string",
+          description: "The specific folder within the dwarvesf/runbook repository.",
+          enum: [
+            "technical-patterns",
+            "operational-state-reporting",
+            "human-escalation-protocols",
+            "diagnostic-and-information-gathering",
+            "automations",
+            "action-policies-and-constraints"
+          ],
+          required: true,
+        },
+        filename_slug: {
+          type: "string",
+          description: "A slug to be used for the filename.",
+        },
+        pr_number: {
+          type: "number",
+          description: "The number of an existing Pull Request to update.",
+        },
+        branch_name: {
+          type: "string",
+          description: "The name of the branch to use for the changes.",
+        },
+        commit_message: {
+          type: "string",
+          description: "The commit message for the file change.",
+        },
+        pr_title: {
+          type: "string",
+          description: "The title for a new Pull Request.",
+        },
+        pr_body: {
+          type: "string",
+          description: "The body content for a new Pull Request. Provide a detailed description explaining the context and purpose of the runbook entry.",
+        },
+      },
+      required: ["content", "target_folder"],
+    },
+    outputSchema: {
+      type: "object",
+      properties: {
+        status: {
+          type: "string",
+          description: "Execution status (success or error)",
+        },
+        pr_number: {
+          type: "number",
+          description: "The number of the created or updated Pull Request.",
+        },
+        pr_url: {
+          type: "string",
+          description: "The URL of the created or updated Pull Request.",
+        },
+        message: {
+          type: "string",
+          description: "Description of the result or error",
+        },
+      },
+      required: ["status"],
+    },
+  },
 ];
 
 export default toolDefinitions;
