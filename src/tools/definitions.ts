@@ -355,7 +355,7 @@ export const toolDefinitions: ToolDefinition[] = [
         },
         branch_name: {
           type: "string",
-          description: "The name of the branch to use for the changes.",
+          description: "The name of the branch to use for the changes. Suggestion: follow a descriptive naming convention (e.g., 'feat/add-runbook-entry-slug').",
         },
         commit_message: {
           type: "string",
@@ -363,11 +363,11 @@ export const toolDefinitions: ToolDefinition[] = [
         },
         pr_title: {
           type: "string",
-          description: "The title for a new Pull Request.",
+          description: "The title for a new Pull Request. Follow commitlint standards (e.g., 'feat: add new runbook entry').",
         },
         pr_body: {
           type: "string",
-          description: "The body content for a new Pull Request. Provide a detailed description explaining the context and purpose of the runbook entry.",
+          description: "The body content for a new Pull Request. Provide a comprehensive and detailed description explaining the context and purpose of the runbook entry.",
         },
       },
       required: ["content", "target_folder"],
