@@ -235,7 +235,7 @@ export const toolDefinitions: ToolDefinition[] = [
         userId: {
           type: "string",
           description:
-            "The unique ID of the user/LLM client (e.g., your GitHub username). You can often get this using `git config user.email`.",
+            "The unique ID of the user/LLM client (e.g., your GitHub email without the @domain.com). You can often get this using `git config user.email`.",
           required: true,
         },
       },
