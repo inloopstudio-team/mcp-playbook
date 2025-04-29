@@ -12,6 +12,7 @@ A Model Context Protocol (MCP) server for managing project documentation and sav
 | `create_adr`                  | Creates or overwrites a new Architectural Decision Record (ADR) file in the docs/adr/ directory of the target project. ADR files will be named following an `adr-name.md` convention with sequence numbering.                             |
 | `create_changelog`            | Creates a new, detailed, and user-facing changelog entry file in the docs/changelog/ directory of the target project. Each changelog entry will be a separate file named following a `changelog-entry.md` convention with sequence numbering. |
 | `save_and_upload_chat_log`    | Captures the current conversation history, saves it as a markdown file in the .chat/ directory of the target project, and uploads it to the dwarvesf/prompt-log GitHub repository. Requires a user ID for organization.                 |
+| `search_runbook`              | Fuzzy search for keywords in the `dwarvesf/runbook` GitHub repository and return the top 5 matching files with their full content.                                                                                                     |
 
 ## Overview
 
@@ -128,6 +129,29 @@ A JSON object indicating success or failure, including the local path, GitHub pa
   "commit_sha": "string" | undefined, // SHA of the commit if successful
   "commit_url": "string" | undefined, // URL of the commit if successful
   "message": "string" // Description of the result or error
+}
+```
+
+### `search_runbook`
+
+Fuzzy search for keywords in the `dwarvesf/runbook` GitHub repository and return the top 5 matching files with their full content. Includes an in-memory cache to avoid repeated GitHub API calls for the same query while the server is active.
+
+**Parameters:**
+- `keyword` (string, required): The keyword to search for in the `dwarvesf/runbook` repository.
+
+**Returns:**
+A JSON object containing the search results.
+```json
+{
+  "results": [ // An array of search results (limited to top 5)
+    {
+      "path": "string", // The path to the file in the repository
+      "snippet": "string", // A snippet of the content where the keyword was found
+      "full_content": "string" | null, // The full decoded content of the file, or null if fetching failed
+      "url": "string" // The URL to the file on GitHub
+    }
+  ],
+  "message": "string" // A message describing the result of the search
 }
 ```
 

@@ -29,6 +29,7 @@ export interface GitHubContentItem {
   git_url: string;
   download_url: string | null;
   type: string; // file or dir
+  content?: string; // Add content property for file content (base64 encoded)
   _links: {
     self: string;
     git: string;
@@ -366,6 +367,169 @@ export async function updateRef(owner: string, repo: string, ref: string, commit
         return await response.json() as GitHubUpdateRefResponse;
     } catch (e: any) {
         console.error(`GitHub API PATCH ref error: ${e.message}`);
+    throw e;
+  }
+}
+
+export interface GitHubSearchCodeResultItem {
+    name: string;
+    path: string;
+    sha: string;
+    url: string;
+    git_url: string;
+    html_url: string;
+    repository: {
+        id: number;
+        node_id: string;
+        name: string;
+        full_name: string;
+        private: boolean;
+        owner: {
+            login: string;
+            id: number;
+            node_id: string;
+            avatar_url: string;
+            gravatar_id: string;
+            url: string;
+            html_url: string;
+            followers_url: string;
+            following_url: string;
+            gists_url: string;
+            starred_url: string;
+            subscriptions_url: string;
+            organizations_url: string;
+            repos_url: string;
+            events_url: string;
+            received_events_url: string;
+            type: string;
+            site_admin: boolean;
+        };
+        html_url: string;
+        description: string | null;
+        fork: boolean;
+        url: string;
+        forks_url: string;
+        keys_url: string;
+        collaborators_url: string;
+        teams_url: string;
+        hooks_url: string;
+        issue_events_url: string;
+        events_url: string;
+        assignees_url: string;
+        branches_url: string;
+        tags_url: string;
+        blobs_url: string;
+        git_tags_url: string;
+        git_refs_url: string;
+        trees_url: string;
+        statuses_url: string;
+        languages_url: string;
+        stargazers_url: string;
+        contributors_url: string;
+        subscribers_url: string;
+        subscription_url: string;
+        commits_url: string;
+        git_commits_url: string;
+        comments_url: string;
+        issue_comment_url: string;
+        contents_url: string;
+        compare_url: string;
+        merges_url: string;
+        archive_url: string;
+        downloads_url: string;
+        issues_url: string;
+        pulls_url: string;
+        milestones_url: string;
+        notifications_url: string;
+        labels_url: string;
+        releases_url: string;
+        deployments_url: string;
+        created_at: string;
+        updated_at: string;
+        pushed_at: string;
+        git_url: string;
+        ssh_url: string;
+        clone_url: string;
+        svn_url: string;
+        homepage: string | null;
+        size: number;
+        stargazers_count: number;
+        watchers_count: number;
+        language: string | null;
+        has_issues: boolean;
+        has_projects: boolean;
+        has_downloads: boolean;
+        has_wiki: boolean;
+        has_pages: boolean;
+        has_discussions: boolean;
+        forks_count: number;
+        mirror_url: string | null;
+        archived: boolean;
+        disabled: boolean;
+        open_issues_count: number;
+        license: {
+            key: string;
+            name: string;
+            spdx_id: string;
+            url: string;
+            node_id: string;
+        } | null;
+        allow_forking: boolean;
+        is_template: boolean;
+        web_commit_signoff_required: boolean;
+        topics: string[];
+        visibility: string;
+        forks: number;
+        open_issues: number;
+        watchers: number;
+        default_branch: string;
+        score: number;
+    };
+    score: number;
+    // Note: The GitHub API response for search code includes 'text_matches'
+    // which provides snippets. We should include this in the type definition.
+    text_matches?: Array<{
+        object_url: string;
+        object_type: string;
+        property: string;
+        fragment: string; // The snippet
+        matches: Array<{
+            text: string;
+            indices: [number, number];
+        }>;
+    }>;
+}
+
+interface GitHubSearchCodeResponse {
+    total_count: number;
+    incomplete_results: boolean;
+    items: GitHubSearchCodeResultItem[];
+}
+
+export async function searchCode(owner: string, repo: string, query: string): Promise<GitHubSearchCodeResponse> {
+    console.log(`Attempting to search code in GitHub: ${owner}/${repo} with query "${query}"`);
+    // The search query format is "q=keyword+in:file+repo:owner/repo"
+    const encodedQuery = encodeURIComponent(`${query} repo:${owner}/${repo}`);
+    const url = `${GITHUB_API_BASE_URL}/search/code?q=${encodedQuery}`;
+
+    const headers = getGithubAuthHeader();
+    // GitHub Search API requires a specific Accept header for text matches
+    headers['Accept'] = 'application/vnd.github.text-match+json';
+
+
+    try {
+        const response = await fetch(url, { method: 'GET', headers });
+        if (!response.ok) {
+            let errorDetail = `Status: ${response.status} ${response.statusText}`;
+            try {
+                const errorBody = await response.json();
+                errorDetail += `, Body: ${JSON.stringify(errorBody, null, 2)}`;
+            } catch (jsonErr) { /* ignore */ }
+            throw new Error(`GitHub API GET search code failed: ${errorDetail}`);
+        }
+        return await response.json() as GitHubSearchCodeResponse;
+    } catch (e: any) {
+        console.error(`GitHub API GET search code error: ${e.message}`);
         throw e;
     }
 }

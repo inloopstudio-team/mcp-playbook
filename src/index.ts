@@ -15,6 +15,7 @@ import {
   handleUpdateChangelog,
   handleSaveAndUploadChatLog,
   handleInitPlaybook,
+  handleSearchRunbook, // Import the new handler
 } from "./handlers.js";
 
 // Optional: Load environment variables from .env in local development
@@ -83,6 +84,11 @@ async function main() {
             result = await handleSaveAndUploadChatLog(
               toolArgs.target_project_dir as string,
               toolArgs.userId as string,
+            );
+            break;
+          case "search_runbook":
+            result = await handleSearchRunbook(
+              toolArgs.keyword as string,
             );
             break;
           default:

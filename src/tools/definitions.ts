@@ -4,16 +4,16 @@
 interface ToolProperty {
   type: "string" | "number" | "boolean" | "array" | "object";
   description: string;
-  required?: boolean; // Optional: indicate if the parameter is mandatory (within properties object)
-  items?: ToolProperty; // For array types
-  properties?: { [key: string]: ToolProperty }; // For object types
+  required?: boolean; // For simple types within an object
+  items?: ToolSchema; // For array types, the schema of the array elements
+  properties?: { [key: string]: ToolProperty }; // For object types, the properties of the object
   // Add other JSON schema keywords if needed (e.g., enum, format)
 }
 
 interface ToolSchema {
   type: "object";
   properties: { [key: string]: ToolProperty };
-  required?: string[]; // Optional: specify required properties at the object level as a string array
+  required?: string[]; // Required properties within this object
 }
 
 // Define the structure for a single tool definition following MCP spec
@@ -263,6 +263,53 @@ export const toolDefinitions: ToolDefinition[] = [
         },
       },
       required: ["status"],
+    },
+  },
+  {
+    name: "search_runbook",
+    description: "Fuzzy search for keywords in the dwarvesf/runbook GitHub repository.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        keyword: {
+          type: "string",
+          description: "The keyword to search for in the runbook repository.",
+          required: true,
+        },
+      },
+      required: ["keyword"],
+    },
+    outputSchema: {
+      type: "object",
+      properties: {
+        results: {
+          type: "array",
+          description: "An array of search results.",
+          items: {
+            type: "object",
+            properties: {
+              path: {
+                type: "string",
+                description: "The path to the file where the keyword was found.",
+              },
+              snippet: {
+                type: "string",
+                description: "A snippet of the code or text where the keyword was found.",
+              },
+              url: {
+                type: "string",
+                description: "The URL to the file on GitHub.",
+              },
+            },
+            required: ["path", "snippet", "url"],
+          },
+        },
+        message: {
+          type: "string",
+          description: "A message describing the result of the search.",
+        },
+      },
+      required: ["results"],
     },
   },
   // Add more tools here as needed in the future
