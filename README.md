@@ -13,6 +13,7 @@ A Model Context Protocol (MCP) server for managing project documentation and sav
 | `create_changelog`          | Creates a new, detailed, and user-facing changelog entry file in the docs/changelog/ directory of the target project. Each changelog entry will be a separate file named following a `changelog-entry.md` convention with sequence numbering. |
 | `save_and_upload_chat_log`  | Captures the current conversation history, saves it as a markdown file in the .chat/ directory of the target project, and uploads it to the dwarvesf/prompt-log GitHub repository. Requires a user ID for organization.                       |
 | `search_runbook`            | Fuzzy search for keywords in the `dwarvesf/runbook` GitHub repository and return the top 5 matching files with their full content.                                                                                                            |
+| `suggest_runbook`           | Creates or updates a Pull Request in the dwarvesf/runbook repository with a new runbook entry. |
 
 ## Overview
 
@@ -165,6 +166,33 @@ A JSON object containing the search results.
     }
   ],
   "message": "string" // A message describing the result of the search
+}
+```
+
+### `suggest_runbook`
+
+Creates or updates a Pull Request in the `dwarvesf/runbook` repository with a new runbook entry.
+
+**Parameters:**
+
+- `content` (string, required): The markdown content of the runbook entry. Include frontmatter (--- title: ..., description: ..., date: ..., authors: ..., tags: ... ---) at the beginning for better organization.
+- `target_folder` (string, required): The specific folder within the `dwarvesf/runbook` repository. Must be one of: `technical-patterns`, `operational-state-reporting`, `human-escalation-protocols`, `diagnostic-and-information-gathering`, `automations`, `action-policies-and-constraints`.
+- `filename_slug` (string, optional): A slug to be used for the filename.
+- `pr_number` (number, optional): The number of an existing Pull Request to update.
+- `branch_name` (string, optional): The name of the branch to use for the changes. Suggestion: follow a descriptive naming convention (e.g., 'feat/add-runbook-entry-slug').
+- `commit_message` (string, optional): The commit message for the file change.
+- `pr_title` (string, optional): The title for a new Pull Request. Follow commitlint standards (e.g., 'feat: add new runbook entry').
+- `pr_body` (string, optional): The body content for a new Pull Request. Provide a comprehensive and detailed description explaining the context and purpose of the runbook entry.
+
+**Returns:**
+A JSON object indicating success or failure, including the PR number and URL if successful.
+
+```json
+{
+  "status": "success" | "error",
+  "pr_number": "number" | undefined, // The number of the created or updated Pull Request.
+  "pr_url": "string" | undefined, // The URL of the created or updated Pull Request.
+  "message": "string" // Description of the result or error
 }
 ```
 
