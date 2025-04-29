@@ -81,7 +81,7 @@ export const toolDefinitions: ToolDefinition[] = [
   {
     name: "create_spec",
     description:
-      "Creates or overwrites a new specification file (e.g., PRD, RFC, architectural planning) in the docs/specs/ directory of the target project. Specification files will be named following a `spec-name.md` convention.",
+      "Creates or overwrites a new specification file (e.g., PRD, RFC, architectural planning) in the docs/specs/ directory of the target project. Specification files will be named following a `spec-name.md` convention. For small feature changes, a simple markdown outline is sufficient. For larger or more complex changes, format the content as a formal PRD or RFC.",
     inputSchema: {
       type: "object",
       properties: {
@@ -99,7 +99,7 @@ export const toolDefinitions: ToolDefinition[] = [
         },
         content: {
           type: "string",
-          description: "The markdown content of the specification.",
+          description: "The markdown content of the specification. For small feature changes, provide a simple markdown outline. For larger or more complex changes, provide content formatted as a formal PRD or RFC.",
           required: true,
         },
       },
