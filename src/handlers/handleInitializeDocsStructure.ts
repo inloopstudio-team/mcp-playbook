@@ -2,18 +2,28 @@
 import * as path from "path";
 import * as fsUtils from "../utils/fsUtils.js";
 import { validateArgs } from "../utils/validationUtils.js";
-import { InitializeDocsStructureArgsSchema, InitializeDocsStructureArgs } from "../tools/initializeDocsStructure.js";
+import {
+  InitializeDocsStructureArgsSchema,
+  InitializeDocsStructureArgs,
+} from "../tools/initializeDocsStructure.js";
 
 export async function handleInitializeDocsStructure(
-  args: InitializeDocsStructureArgs
+  args: InitializeDocsStructureArgs,
 ): Promise<any> {
   try {
-    const { target_project_dir } = validateArgs(InitializeDocsStructureArgsSchema, args);
+    const { target_project_dir } = validateArgs(
+      InitializeDocsStructureArgsSchema,
+      args,
+    );
 
     const absoluteTargetProjectDir = path.resolve(target_project_dir);
-    console.log(`Handling initialize_docs_structure for: ${absoluteTargetProjectDir}`);
+    console.log(
+      `Handling initialize_docs_structure for: ${absoluteTargetProjectDir}`,
+    );
     // Use fsUtils to create directories
-    fsUtils.createDirectory(fsUtils.joinProjectPath(absoluteTargetProjectDir, "docs"));
+    fsUtils.createDirectory(
+      fsUtils.joinProjectPath(absoluteTargetProjectDir, "docs"),
+    );
     fsUtils.createDirectory(
       fsUtils.joinProjectPath(absoluteTargetProjectDir, "docs", "specs"),
     );
@@ -23,7 +33,9 @@ export async function handleInitializeDocsStructure(
     fsUtils.createDirectory(
       fsUtils.joinProjectPath(absoluteTargetProjectDir, "docs", "changelog"),
     );
-    fsUtils.createDirectory(fsUtils.joinProjectPath(absoluteTargetProjectDir, ".chat")); // Also create .chat here
+    fsUtils.createDirectory(
+      fsUtils.joinProjectPath(absoluteTargetProjectDir, ".chat"),
+    ); // Also create .chat here
 
     return {
       status: "success",

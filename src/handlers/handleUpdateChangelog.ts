@@ -2,13 +2,19 @@
 import * as path from "path";
 import * as fsUtils from "../utils/fsUtils.js";
 import { validateArgs } from "../utils/validationUtils.js";
-import { CreateChangelogArgsSchema, CreateChangelogArgs } from "../tools/createChangelog.js";
+import {
+  CreateChangelogArgsSchema,
+  CreateChangelogArgs,
+} from "../tools/createChangelog.js";
 
 export async function handleUpdateChangelog(
-  args: CreateChangelogArgs
+  args: CreateChangelogArgs,
 ): Promise<any> {
   try {
-    const { target_project_dir, entry_content, changelog_name } = validateArgs(CreateChangelogArgsSchema, args);
+    const { target_project_dir, entry_content, changelog_name } = validateArgs(
+      CreateChangelogArgsSchema,
+      args,
+    );
 
     const absoluteTargetProjectDir = path.resolve(target_project_dir);
     console.log(`Handling create_changelog for: ${absoluteTargetProjectDir}`);

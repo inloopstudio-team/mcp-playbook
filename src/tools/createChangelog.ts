@@ -1,11 +1,21 @@
 import { ToolDefinition } from "../types.js";
-import { z } from 'zod';
+import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
 
 export const CreateChangelogArgsSchema = z.object({
-  target_project_dir: z.string().describe("The absolute path to the root of the target project directory. Using an absolute path is highly recommended for reliability."),
-  entry_content: z.string().describe("The markdown content of the new changelog entry."),
-  changelog_name: z.string().describe("The desired name for the changelog file (without sequence numbers and the .md extension)."),
+  target_project_dir: z
+    .string()
+    .describe(
+      "The absolute path to the root of the target project directory. Using an absolute path is highly recommended for reliability.",
+    ),
+  entry_content: z
+    .string()
+    .describe("The markdown content of the new changelog entry."),
+  changelog_name: z
+    .string()
+    .describe(
+      "The desired name for the changelog file (without sequence numbers and the .md extension).",
+    ),
 });
 
 export type CreateChangelogArgs = z.infer<typeof CreateChangelogArgsSchema>;

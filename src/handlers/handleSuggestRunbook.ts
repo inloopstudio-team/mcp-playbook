@@ -3,13 +3,25 @@ import * as path from "path";
 import * as githubApi from "../utils/githubApi.js";
 import { RequestError } from "@octokit/request-error";
 import { validateArgs } from "../utils/validationUtils.js";
-import { SuggestRunbookArgsSchema, SuggestRunbookArgs } from "../tools/suggestRunbook.js";
+import {
+  SuggestRunbookArgsSchema,
+  SuggestRunbookArgs,
+} from "../tools/suggestRunbook.js";
 
 export async function handleSuggestRunbook(
-  args: SuggestRunbookArgs
+  args: SuggestRunbookArgs,
 ): Promise<any> {
   try {
-    const { content, target_folder, filename_slug, pr_number, branch_name, commit_message, pr_title, pr_body } = validateArgs(SuggestRunbookArgsSchema, args);
+    const {
+      content,
+      target_folder,
+      filename_slug,
+      pr_number,
+      branch_name,
+      commit_message,
+      pr_title,
+      pr_body,
+    } = validateArgs(SuggestRunbookArgsSchema, args);
 
     console.log(`Handling suggest_runbook for folder: ${target_folder}`);
 
@@ -54,15 +66,26 @@ export async function handleSuggestRunbook(
       }
       // 5. Create the new branch
       console.log(`Creating new branch: ${headBranch}`);
-      await githubApi.createBranch(githubOwner, githubRepo, headBranch, baseBranch);
+      await githubApi.createBranch(
+        githubOwner,
+        githubRepo,
+        headBranch,
+        baseBranch,
+      );
     } else {
       // If updating existing PR, get the head branch from the PR
       console.log(`Fetching PR ${pr_number} to get head branch`);
-      const pr = await githubApi.getPullRequest(githubOwner, githubRepo, pr_number!);
+      const pr = await githubApi.getPullRequest(
+        githubOwner,
+        githubRepo,
+        pr_number!,
+      );
       headBranch = pr.head.ref;
 
       // 6. Fetch existing file SHA if updating
-      console.log(`Fetching existing file content for ${targetFilePath} on branch ${headBranch}`);
+      console.log(
+        `Fetching existing file content for ${targetFilePath} on branch ${headBranch}`,
+      );
       try {
         const existingContent = await githubApi.getContents(
           githubOwner,
@@ -70,22 +93,30 @@ export async function handleSuggestRunbook(
           targetFilePath,
           headBranch,
         );
-        if (!Array.isArray(existingContent) && existingContent.type === 'file') {
+        if (
+          !Array.isArray(existingContent) &&
+          existingContent.type === "file"
+        ) {
           existingFileSha = existingContent.sha;
           console.log(`Found existing file with SHA: ${existingFileSha}`);
         }
       } catch (e: any) {
-         if (e instanceof RequestError && e.status === 404) {
-            console.log(`File not found at ${targetFilePath} on branch ${headBranch}. This is expected for a new file.`);
-         } else {
-            throw e; // Re-throw other errors
-         }
+        if (e instanceof RequestError && e.status === 404) {
+          console.log(
+            `File not found at ${targetFilePath} on branch ${headBranch}. This is expected for a new file.`,
+          );
+        } else {
+          throw e; // Re-throw other errors
+        }
       }
     }
 
     // 7. Use createOrUpdateFileInRepo to push the content
-    const finalCommitMessage = commit_message || `Add/update runbook entry: ${finalFilenameSlug}`;
-    console.log(`Creating/updating file ${targetFilePath} on branch ${headBranch}`);
+    const finalCommitMessage =
+      commit_message || `Add/update runbook entry: ${finalFilenameSlug}`;
+    console.log(
+      `Creating/updating file ${targetFilePath} on branch ${headBranch}`,
+    );
     await githubApi.createOrUpdateFileInRepo(
       githubOwner,
       githubRepo,
@@ -102,7 +133,8 @@ export async function handleSuggestRunbook(
 
     if (isNewPr) {
       // 8. Create a new Pull Request
-      const finalPrTitle = pr_title || `feat: Add runbook entry for ${finalFilenameSlug}`;
+      const finalPrTitle =
+        pr_title || `feat: Add runbook entry for ${finalFilenameSlug}`;
       const defaultPrBody = `This PR suggests a new runbook entry for the \`${target_folder}\` folder.
 
 This entry was suggested by an AI to document a technical pattern or procedure that can be helpful for Large Language Models operating on codebases.
@@ -124,20 +156,20 @@ Please review the suggested content and merge if appropriate.`;
       finalPrUrl = newPr.html_url;
       console.log(`New PR created: ${finalPrUrl}`);
     } else {
-        // If updating existing PR, construct the URL
-        finalPrUrl = `https://github.com/${githubOwner}/${githubRepo}/pull/${pr_number}`;
-        console.log(`Updated existing PR: ${finalPrUrl}`);
+      // If updating existing PR, construct the URL
+      finalPrUrl = `https://github.com/${githubOwner}/${githubRepo}/pull/${pr_number}`;
+      console.log(`Updated existing PR: ${finalPrUrl}`);
     }
-
 
     // 9. Return status and PR details
     return {
       status: "success",
       pr_number: finalPrNumber,
       pr_url: finalPrUrl,
-      message: isNewPr ? `Successfully created PR #${finalPrNumber}` : `Successfully updated PR #${finalPrNumber}`,
+      message: isNewPr
+        ? `Successfully created PR #${finalPrNumber}`
+        : `Successfully updated PR #${finalPrNumber}`,
     };
-
   } catch (e: any) {
     console.error(`Error in handleSuggestRunbook: ${e.message}`);
     return {

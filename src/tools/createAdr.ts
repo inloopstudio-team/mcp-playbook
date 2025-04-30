@@ -1,10 +1,18 @@
 import { ToolDefinition } from "../types.js";
-import { z } from 'zod';
+import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
 
 export const CreateAdrArgsSchema = z.object({
-  target_project_dir: z.string().describe("The absolute path to the root of the target project directory. Using an absolute path is highly recommended for reliability."),
-  adr_name: z.string().describe("The name of the ADR file (without sequence numbers and the .md extension)."),
+  target_project_dir: z
+    .string()
+    .describe(
+      "The absolute path to the root of the target project directory. Using an absolute path is highly recommended for reliability.",
+    ),
+  adr_name: z
+    .string()
+    .describe(
+      "The name of the ADR file (without sequence numbers and the .md extension).",
+    ),
   content: z.string().describe("The markdown content of the ADR."),
 });
 

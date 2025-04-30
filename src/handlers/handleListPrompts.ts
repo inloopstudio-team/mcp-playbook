@@ -7,7 +7,8 @@ export async function handleListPrompts(): Promise<any> {
   const prompts = [
     {
       name: "init-playbook",
-      description: "Provides the initial instruction prompt for the MCP Playbook server.",
+      description:
+        "Provides the initial instruction prompt for the MCP Playbook server.",
       arguments: [],
     },
   ];

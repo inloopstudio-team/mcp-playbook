@@ -4,15 +4,22 @@ import * as fsUtils from "../utils/fsUtils.js";
 import { validateArgs } from "../utils/validationUtils.js";
 import { CreateAdrArgsSchema, CreateAdrArgs } from "../tools/createAdr.js";
 
-export async function handleCreateAdr(
-  args: CreateAdrArgs
-): Promise<any> {
+export async function handleCreateAdr(args: CreateAdrArgs): Promise<any> {
   try {
-    const { target_project_dir, adr_name, content } = validateArgs(CreateAdrArgsSchema, args);
+    const { target_project_dir, adr_name, content } = validateArgs(
+      CreateAdrArgsSchema,
+      args,
+    );
 
     const absoluteTargetProjectDir = path.resolve(target_project_dir);
-    console.log(`Handling create_adr for: ${absoluteTargetProjectDir}, adr: ${adr_name}`);
-    const adrDir = fsUtils.joinProjectPath(absoluteTargetProjectDir, "docs", "adr");
+    console.log(
+      `Handling create_adr for: ${absoluteTargetProjectDir}, adr: ${adr_name}`,
+    );
+    const adrDir = fsUtils.joinProjectPath(
+      absoluteTargetProjectDir,
+      "docs",
+      "adr",
+    );
 
     // Ensure directory exists
     fsUtils.createDirectory(adrDir);

@@ -1,6 +1,6 @@
 // src/types.ts
 
-import { z } from 'zod';
+import { z } from "zod";
 import { JsonSchema7Type } from "zod-to-json-schema";
 
 // Define interfaces for tool schema structure (following OpenAPI/JSON Schema like style)

@@ -576,7 +576,6 @@ export async function createPullRequest(
   }
 }
 
-
 // Utility to derive a project name from a path
 export function deriveProjectNameFromPath(projectPath: string): string {
   const normalizedPath = path.normalize(projectPath);

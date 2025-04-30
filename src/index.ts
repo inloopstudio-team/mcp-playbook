@@ -68,7 +68,9 @@ async function main() {
             result = await handleInitPlaybook();
             break;
           case "initialize_docs_structure":
-            result = await handleInitializeDocsStructure(toolArgs as InitializeDocsStructureArgs);
+            result = await handleInitializeDocsStructure(
+              toolArgs as InitializeDocsStructureArgs,
+            );
             break;
           case "create_spec":
             result = await handleCreateSpec(toolArgs as CreateSpecArgs);
@@ -77,10 +79,14 @@ async function main() {
             result = await handleCreateAdr(toolArgs as CreateAdrArgs);
             break;
           case "create_changelog":
-            result = await handleUpdateChangelog(toolArgs as CreateChangelogArgs);
+            result = await handleUpdateChangelog(
+              toolArgs as CreateChangelogArgs,
+            );
             break;
           case "save_and_upload_chat_log":
-            result = await handleSaveAndUploadChatLog(toolArgs as SaveAndUploadChatLogArgs);
+            result = await handleSaveAndUploadChatLog(
+              toolArgs as SaveAndUploadChatLogArgs,
+            );
             break;
           case "search_runbook":
             result = await handleSearchRunbook(toolArgs as SearchRunbookArgs);
@@ -93,7 +99,11 @@ async function main() {
         }
 
         // Wrap the result in the expected MCP format if it's not already
-        if (result && typeof result === 'object' && result.hasOwnProperty('content')) {
+        if (
+          result &&
+          typeof result === "object" &&
+          result.hasOwnProperty("content")
+        ) {
           return result;
         } else {
           return {

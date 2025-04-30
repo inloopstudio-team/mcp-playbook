@@ -1,12 +1,17 @@
 // src/handlers/handleSearchRunbook.ts
 import * as githubApi from "../utils/githubApi.js";
 import { validateArgs } from "../utils/validationUtils.js";
-import { SearchRunbookArgsSchema, SearchRunbookArgs } from "../tools/searchRunbook.js";
+import {
+  SearchRunbookArgsSchema,
+  SearchRunbookArgs,
+} from "../tools/searchRunbook.js";
 
 // In-memory cache for search results
 const searchCache = new Map<string, any>(); // Cache key: keyword, Cache value: GitHub search results
 
-export async function handleSearchRunbook(args: SearchRunbookArgs): Promise<any> {
+export async function handleSearchRunbook(
+  args: SearchRunbookArgs,
+): Promise<any> {
   try {
     const { keyword } = validateArgs(SearchRunbookArgsSchema, args);
 

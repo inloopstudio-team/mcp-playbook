@@ -1,9 +1,11 @@
 import { ToolDefinition } from "../types.js";
-import { z } from 'zod';
+import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
 
 export const SearchRunbookArgsSchema = z.object({
-  keyword: z.string().describe("The keyword to search for in the runbook repository."),
+  keyword: z
+    .string()
+    .describe("The keyword to search for in the runbook repository."),
 });
 
 export type SearchRunbookArgs = z.infer<typeof SearchRunbookArgsSchema>;

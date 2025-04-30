@@ -4,17 +4,22 @@ import * as fsUtils from "../utils/fsUtils.js";
 import { validateArgs } from "../utils/validationUtils.js";
 import { CreateSpecArgsSchema, CreateSpecArgs } from "../tools/createSpec.js";
 
-export async function handleCreateSpec(
-  args: CreateSpecArgs
-): Promise<any> {
+export async function handleCreateSpec(args: CreateSpecArgs): Promise<any> {
   try {
-    const { target_project_dir, spec_name, content } = validateArgs(CreateSpecArgsSchema, args);
+    const { target_project_dir, spec_name, content } = validateArgs(
+      CreateSpecArgsSchema,
+      args,
+    );
 
     const absoluteTargetProjectDir = path.resolve(target_project_dir);
     console.log(
       `Handling create_spec for: ${absoluteTargetProjectDir}, spec: ${spec_name}`,
     );
-    const specsDir = fsUtils.joinProjectPath(absoluteTargetProjectDir, "docs", "specs");
+    const specsDir = fsUtils.joinProjectPath(
+      absoluteTargetProjectDir,
+      "docs",
+      "specs",
+    );
 
     // Ensure directory exists
     fsUtils.createDirectory(specsDir);
