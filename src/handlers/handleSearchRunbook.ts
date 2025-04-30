@@ -6,9 +6,6 @@ import {
 import * as githubApi from "../utils/githubApi.js";
 import { validateArgs } from "../utils/validationUtils.js";
 
-// In-memory cache for search results
-const searchCache = new Map<string, any>(); // Cache key: keyword, Cache value: GitHub search results
-
 export async function handleSearchRunbook(
   args: SearchRunbookArgs,
 ): Promise<any> {
@@ -17,19 +14,8 @@ export async function handleSearchRunbook(
 
     console.log(`Handling search_runbook for keyword: ${keyword}`);
 
-    // Check if the result is in the cache
-    if (searchCache.has(keyword)) {
-      console.log(`Cache hit for keyword: ${keyword}`);
-      return {
-        results: searchCache.get(keyword),
-        message: "Results from cache.",
-      };
-    }
-
-    console.log(`Cache miss for keyword: ${keyword}. Searching GitHub...`);
     const githubOwner = "dwarvesf";
     const githubRepo = "runbook";
-    const searchQuery = `repo:${githubOwner}/${githubRepo} ${keyword}`;
 
     // Use the githubApi function to search code to get matching file paths
     const searchResults = await githubApi.searchCode(
@@ -109,10 +95,6 @@ export async function handleSearchRunbook(
         });
       }
     }
-
-    // Store results in cache (cache the processed results including full content)
-    searchCache.set(keyword, processedResults);
-    console.log(`Cached results for keyword: ${keyword}`);
 
     return {
       results: processedResults,

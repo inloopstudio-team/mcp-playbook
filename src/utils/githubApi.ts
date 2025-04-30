@@ -9,7 +9,9 @@ import { Buffer } from "buffer";
 import { Octokit } from "octokit";
 import * as path from "path";
 
-const GITHUB_API_BASE_URL = "https://api.github.com";
+// In-memory cache for search results
+const searchCache = new Map<string, any>();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 const octokit = new Octokit({
   auth: process.env.GITHUB_PERSONAL_ACCESS_TOKEN,
@@ -256,6 +258,14 @@ export async function searchCode(
     `Attempting to search code in GitHub: ${owner}/${repo} with query "${query}"`,
   );
 
+  const cacheKey = `${owner}/${repo}:${query}`;
+  const cachedResult = searchCache.get(cacheKey);
+
+  if (cachedResult && Date.now() - cachedResult.timestamp < CACHE_TTL) {
+    console.log(`Returning cached search result for ${cacheKey}`);
+    return cachedResult.data;
+  }
+
   try {
     const response = await octokit.rest.search.code({
       q: `${query} repo:${owner}/${repo}`,
@@ -264,6 +274,13 @@ export async function searchCode(
         Accept: "application/vnd.github.text-match+json",
       },
     });
+
+    // Store the result in cache with a timestamp
+    searchCache.set(cacheKey, {
+      data: response.data,
+      timestamp: Date.now(),
+    });
+
     return response.data; // Return Octokit's type directly
   } catch (e: any) {
     console.error(`GitHub API GET search code error: ${e.message}`);
