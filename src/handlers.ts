@@ -57,20 +57,21 @@ Upon completing a task or reaching a significant milestone, ALWAYS ensure your p
 export async function handleInitializeDocsStructure(
   targetProjectDir: string,
 ): Promise<any> {
-  console.log(`Handling initialize_docs_structure for: ${targetProjectDir}`);
+  const absoluteTargetProjectDir = path.resolve(targetProjectDir); // Add this line
+  console.log(`Handling initialize_docs_structure for: ${absoluteTargetProjectDir}`);
   try {
     // Use fsUtils to create directories
-    fsUtils.createDirectory(fsUtils.joinProjectPath(targetProjectDir, "docs"));
+    fsUtils.createDirectory(fsUtils.joinProjectPath(absoluteTargetProjectDir, "docs"));
     fsUtils.createDirectory(
-      fsUtils.joinProjectPath(targetProjectDir, "docs", "specs"),
+      fsUtils.joinProjectPath(absoluteTargetProjectDir, "docs", "specs"),
     );
     fsUtils.createDirectory(
-      fsUtils.joinProjectPath(targetProjectDir, "docs", "adr"),
+      fsUtils.joinProjectPath(absoluteTargetProjectDir, "docs", "adr"),
     );
     fsUtils.createDirectory(
-      fsUtils.joinProjectPath(targetProjectDir, "docs", "changelog"),
+      fsUtils.joinProjectPath(absoluteTargetProjectDir, "docs", "changelog"),
     );
-    fsUtils.createDirectory(fsUtils.joinProjectPath(targetProjectDir, ".chat")); // Also create .chat here
+    fsUtils.createDirectory(fsUtils.joinProjectPath(absoluteTargetProjectDir, ".chat")); // Also create .chat here
 
     return {
       status: "success",
@@ -249,10 +250,11 @@ export async function handleCreateSpec(
   specName: string,
   content: string,
 ): Promise<any> {
+  const absoluteTargetProjectDir = path.resolve(targetProjectDir); // Add this line
   console.log(
-    `Handling create_spec for: ${targetProjectDir}, spec: ${specName}`,
+    `Handling create_spec for: ${absoluteTargetProjectDir}, spec: ${specName}`,
   );
-  const specsDir = fsUtils.joinProjectPath(targetProjectDir, "docs", "specs");
+  const specsDir = fsUtils.joinProjectPath(absoluteTargetProjectDir, "docs", "specs");
 
   try {
     // Ensure directory exists
@@ -311,8 +313,9 @@ export async function handleCreateAdr(
   adrName: string,
   content: string,
 ): Promise<any> {
-  console.log(`Handling create_adr for: ${targetProjectDir}, adr: ${adrName}`);
-  const adrDir = fsUtils.joinProjectPath(targetProjectDir, "docs", "adr");
+  const absoluteTargetProjectDir = path.resolve(targetProjectDir); // Add this line
+  console.log(`Handling create_adr for: ${absoluteTargetProjectDir}, adr: ${adrName}`);
+  const adrDir = fsUtils.joinProjectPath(absoluteTargetProjectDir, "docs", "adr");
 
   try {
     // Ensure directory exists
@@ -371,9 +374,10 @@ export async function handleUpdateChangelog(
   entryContent: string,
   changelogName: string, // changelogName is now required
 ): Promise<any> {
-  console.log(`Handling create_changelog for: ${targetProjectDir}`);
+  const absoluteTargetProjectDir = path.resolve(targetProjectDir); // Add this line
+  console.log(`Handling create_changelog for: ${absoluteTargetProjectDir}`);
   const changelogDir = fsUtils.joinProjectPath(
-    targetProjectDir,
+    absoluteTargetProjectDir,
     "docs",
     "changelog",
   );
@@ -436,8 +440,9 @@ export async function handleSaveAndUploadChatLog(
   targetProjectDir: string,
   userId: string,
 ): Promise<any> {
+  const absoluteTargetProjectDir = path.resolve(targetProjectDir); // Add this line
   console.log(
-    `Handling save_and_upload_chat_log for: ${targetProjectDir}, user: ${userId}`,
+    `Handling save_and_upload_chat_log for: ${absoluteTargetProjectDir}, user: ${userId}`,
   );
   const githubOwner = "dwarvesf";
   const githubRepo = "prompt-log";
@@ -446,11 +451,11 @@ export async function handleSaveAndUploadChatLog(
 
   try {
     // Derive GitHub path based on target project name and user ID
-    const projectName = githubApi.deriveProjectNameFromPath(targetProjectDir);
+    const projectName = githubApi.deriveProjectNameFromPath(absoluteTargetProjectDir); // Use absolute path here
     const remoteChatDir = path.posix.join(projectName, userId, ".chat");
 
     // Ensure the local .chat directory exists in the target project
-    const localChatDir = fsUtils.joinProjectPath(targetProjectDir, ".chat");
+    const localChatDir = fsUtils.joinProjectPath(absoluteTargetProjectDir, ".chat"); // Use absolute path here
     fsUtils.createDirectory(localChatDir);
 
     // Get list of local files in .chat directory
