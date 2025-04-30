@@ -2,8 +2,6 @@
 import * as path from "path";
 import * as fsUtils from "../utils/fsUtils.js";
 import * as githubApi from "../utils/githubApi.js";
-import * as crypto from "crypto";
-import { RequestError } from "@octokit/request-error";
 import { validateArgs } from "../utils/validationUtils.js";
 import {
   SaveAndUploadChatLogArgsSchema,
@@ -118,8 +116,8 @@ export async function handleSaveAndUploadChatLog(
     for (const item of filesToKeep) {
       newTreeItems.push({
         path: item.path,
-        mode: item.mode,
-        type: item.type,
+        mode: item.mode as githubApi.GitHubCreateTreeItem["mode"],
+        type: item.type as githubApi.GitHubCreateTreeItem["type"],
         sha: item.sha,
       });
     }

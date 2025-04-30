@@ -3,6 +3,11 @@ import * as path from "path";
 import { Buffer } from "buffer";
 import { Octokit } from "octokit";
 import { RequestError } from "@octokit/request-error";
+import {
+  Endpoints,
+  GetResponseDataTypeFromEndpointMethod,
+  RequestParameters,
+} from "@octokit/types";
 
 const GITHUB_API_BASE_URL = "https://api.github.com";
 
@@ -10,26 +15,10 @@ const octokit = new Octokit({
   auth: process.env.GITHUB_PERSONAL_ACCESS_TOKEN,
 });
 
-export interface GitHubContentItem {
-  name: string;
-  path: string;
-  sha: string;
-  size: number;
-  url: string;
-  html_url: string;
-  git_url: string;
-  download_url: string | null;
-  type: string; // file or dir
-  content?: string; // Add content property for file content (base64 encoded)
-  _links: {
-    self: string;
-    git: string;
-    html: string;
-  };
-}
-
-// Define a type that can be a single item or an array of items
-type GitHubContentsResponse = GitHubContentItem | GitHubContentItem[];
+// Define a type that can be a single item or an array of items using Octokit's type
+type GitHubContentsResponse = GetResponseDataTypeFromEndpointMethod<
+  typeof octokit.rest.repos.getContent
+>;
 
 export async function getContents(
   owner: string,
@@ -56,7 +45,7 @@ export async function getContents(
   } catch (e: any) {
     if (e instanceof RequestError && e.status === 404) {
       console.log(`Content not found at ${filePath}. Returning empty.`);
-      return []; // Return empty array for consistency when listing directory contents
+      return [] as GitHubContentsResponse; // Return empty array for consistency when listing directory contents
     }
     console.error(`GitHub API GET request error for ${filePath}: ${e.message}`);
     throw e; // Re-throw for the tool handler
@@ -65,22 +54,11 @@ export async function getContents(
 
 // Git Database API Functions for creating a single commit
 
-interface GitHubRef {
-  object: {
-    sha: string;
-    type: string;
-    url: string;
-  };
-  ref: string;
-  url: string;
-  node_id: string;
-}
-
 export async function getRef(
   owner: string,
   repo: string,
   ref: string,
-): Promise<GitHubRef> {
+): Promise<GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.git.getRef>> {
   console.log(`Attempting to get ref from GitHub: ${owner}/${repo}/${ref}`);
 
   try {
@@ -89,36 +67,18 @@ export async function getRef(
       repo,
       ref,
     });
-    return response.data as GitHubRef;
+    return response.data;
   } catch (e: any) {
     console.error(`GitHub API GET ref error for ${ref}: ${e.message}`);
     throw e;
   }
 }
 
-interface GitHubCommit {
-  sha: string;
-  node_id: string;
-  url: string;
-  html_url: string;
-  author: { name: string; email: string; date: string };
-  committer: { name: string; email: string; date: string };
-  tree: { sha: string; url: string };
-  message: string;
-  parents: Array<{ sha: string; url: string; html_url: string }>;
-  verification?: {
-    verified: boolean;
-    reason: string;
-    signature: string | null;
-    payload: string | null;
-  };
-}
-
 export async function getCommit(
   owner: string,
   repo: string,
   commitSha: string,
-): Promise<GitHubCommit> {
+): Promise<GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.git.getCommit>> {
   console.log(
     `Attempting to get commit from GitHub: ${owner}/${repo}/${commitSha}`,
   );
@@ -129,34 +89,18 @@ export async function getCommit(
       repo,
       commit_sha: commitSha,
     });
-    return response.data as GitHubCommit;
+    return response.data;
   } catch (e: any) {
     console.error(`GitHub API GET commit error for ${commitSha}: ${e.message}`);
     throw e;
   }
 }
 
-interface GitHubTreeItem {
-  path: string;
-  mode: string; // e.g., '100644' for file, '040000' for directory
-  type: string; // 'blob' or 'tree'
-  sha: string;
-  size?: number; // Only for blobs
-  url: string;
-}
-
-interface GitHubTree {
-  sha: string;
-  url: string;
-  tree: GitHubTreeItem[];
-  truncated: boolean;
-}
-
 export async function getTree(
   owner: string,
   repo: string,
   treeSha: string,
-): Promise<GitHubTree> {
+): Promise<GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.git.getTree>> {
   console.log(
     `Attempting to get tree from GitHub: ${owner}/${repo}/${treeSha}`,
   );
@@ -167,16 +111,11 @@ export async function getTree(
       repo,
       tree_sha: treeSha,
     });
-    return response.data as GitHubTree;
+    return response.data;
   } catch (e: any) {
     console.error(`GitHub API GET tree error for ${treeSha}: ${e.message}`);
     throw e;
   }
-}
-
-interface GitHubBlobResponse {
-  sha: string;
-  url: string;
 }
 
 export async function createBlob(
@@ -184,7 +123,7 @@ export async function createBlob(
   repo: string,
   content: string,
   encoding: string = "utf-8",
-): Promise<GitHubBlobResponse> {
+): Promise<GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.git.createBlob>> {
   console.log(`Attempting to create blob in GitHub: ${owner}/${repo}`);
 
   const payload = {
@@ -198,33 +137,21 @@ export async function createBlob(
       repo,
       ...payload,
     });
-    return response.data as GitHubBlobResponse;
+    return response.data;
   } catch (e: any) {
     console.error(`GitHub API POST blob error: ${e.message}`);
     throw e;
   }
 }
 
-export interface GitHubCreateTreeItem {
-  path: string;
-  mode: string; // e.g., '100644' for file, '040000' for directory
-  type: string; // 'blob' or 'tree'
-  sha: string; // SHA of the blob or tree
-}
-
-interface GitHubCreateTreeResponse {
-  sha: string;
-  url: string;
-  tree: GitHubCreateTreeItem[];
-  truncated: boolean;
-}
+export type GitHubCreateTreeItem = RequestParameters & Endpoints["POST /repos/{owner}/{repo}/git/trees"]["parameters"]["tree"][number];
 
 export async function createTree(
   owner: string,
   repo: string,
   treeItems: GitHubCreateTreeItem[],
   baseTreeSha?: string,
-): Promise<GitHubCreateTreeResponse> {
+): Promise<GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.git.createTree>> {
   console.log(`Attempting to create tree in GitHub: ${owner}/${repo}`);
 
   const payload: any = {
@@ -240,29 +167,11 @@ export async function createTree(
       repo,
       ...payload,
     });
-    return response.data as GitHubCreateTreeResponse;
+    return response.data;
   } catch (e: any) {
     console.error(`GitHub API POST tree error: ${e.message}`);
     throw e;
   }
-}
-
-interface GitHubCreateCommitResponse {
-  sha: string;
-  node_id: string;
-  url: string;
-  html_url: string;
-  author: { name: string; email: string; date: string };
-  committer: { name: string; email: string; date: string };
-  tree: { sha: string; url: string };
-  message: string;
-  parents: Array<{ sha: string; url: string; html_url: string }>;
-  verification?: {
-    verified: boolean;
-    reason: string;
-    signature: string | null;
-    payload: string | null;
-  };
 }
 
 export async function createCommit(
@@ -271,7 +180,7 @@ export async function createCommit(
   message: string,
   treeSha: string,
   parentCommitSha: string,
-): Promise<GitHubCreateCommitResponse> {
+): Promise<GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.git.createCommit>> {
   console.log(`Attempting to create commit in GitHub: ${owner}/${repo}`);
 
   const payload = {
@@ -286,22 +195,11 @@ export async function createCommit(
       repo,
       ...payload,
     });
-    return response.data as GitHubCreateCommitResponse;
+    return response.data;
   } catch (e: any) {
     console.error(`GitHub API POST commit error: ${e.message}`);
     throw e;
   }
-}
-
-interface GitHubUpdateRefResponse {
-  object: {
-    sha: string;
-    type: string;
-    url: string;
-  };
-  ref: string;
-  url: string;
-  node_id: string;
 }
 
 export async function updateRef(
@@ -310,7 +208,7 @@ export async function updateRef(
   ref: string,
   commitSha: string,
   force: boolean = false,
-): Promise<GitHubUpdateRefResponse> {
+): Promise<GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.git.updateRef>> {
   console.log(`Attempting to update ref in GitHub: ${owner}/${repo}/${ref}`);
 
   const payload = {
@@ -325,153 +223,18 @@ export async function updateRef(
       ref,
       ...payload,
     });
-    return response.data as GitHubUpdateRefResponse;
+    return response.data;
   } catch (e: any) {
     console.error(`GitHub API PATCH ref error: ${e.message}`);
     throw e;
   }
 }
 
-export interface GitHubSearchCodeResultItem {
-  name: string;
-  path: string;
-  sha: string;
-  url: string;
-  git_url: string;
-  html_url: string;
-  repository: {
-    id: number;
-    node_id: string;
-    name: string;
-    full_name: string;
-    private: boolean;
-    owner: {
-      login: string;
-      id: number;
-      node_id: string;
-      avatar_url: string;
-      gravatar_id: string;
-      url: string;
-      html_url: string;
-      followers_url: string;
-      following_url: string;
-      gists_url: string;
-      starred_url: string;
-      subscriptions_url: string;
-      organizations_url: string;
-      repos_url: string;
-      events_url: string;
-      received_events_url: string;
-      type: string;
-      site_admin: boolean;
-    };
-    html_url: string;
-    description: string | null;
-    fork: boolean;
-    url: string;
-    forks_url: string;
-    keys_url: string;
-    collaborators_url: string;
-    teams_url: string;
-    hooks_url: string;
-    issue_events_url: string;
-    events_url: string;
-    assignees_url: string;
-    branches_url: string;
-    tags_url: string;
-    blobs_url: string;
-    git_tags_url: string;
-    git_refs_url: string;
-    trees_url: string;
-    statuses_url: string;
-    languages_url: string;
-    stargazers_url: string;
-    contributors_url: string;
-    subscribers_url: string;
-    subscription_url: string;
-    commits_url: string;
-    git_commits_url: string;
-    comments_url: string;
-    issue_comment_url: string;
-    contents_url: string;
-    compare_url: string;
-    merges_url: string;
-    archive_url: string;
-    downloads_url: string;
-    issues_url: string;
-    pulls_url: string;
-    milestones_url: string;
-    notifications_url: string;
-    labels_url: string;
-    releases_url: string;
-    deployments_url: string;
-    created_at: string;
-    updated_at: string;
-    pushed_at: string;
-    git_url: string;
-    ssh_url: string;
-    clone_url: string;
-    svn_url: string;
-    homepage: string | null;
-    size: number;
-    stargazers_count: number;
-    watchers_count: number;
-    language: string | null;
-    has_issues: boolean;
-    has_projects: boolean;
-    has_downloads: boolean;
-    has_wiki: boolean;
-    has_pages: boolean;
-    has_discussions: boolean;
-    forks_count: number;
-    mirror_url: string | null;
-    archived: boolean;
-    disabled: boolean;
-    open_issues_count: number;
-    license: {
-      key: string;
-      name: string;
-      spdx_id: string;
-      url: string;
-      node_id: string;
-    } | null;
-    allow_forking: boolean;
-    is_template: boolean;
-    web_commit_signoff_required: boolean;
-    topics: string[];
-    visibility: string;
-    forks: number;
-    open_issues: number;
-    watchers: number;
-    default_branch: string;
-    score: number;
-  };
-  score: number;
-  // Note: The GitHub API response for search code includes 'text_matches'
-  // which provides snippets. We should include this in the type definition.
-  text_matches?: Array<{
-    object_url: string;
-    object_type: string;
-    property: string;
-    fragment: string; // The snippet
-    matches: Array<{
-      text: string;
-      indices: [number, number];
-    }>;
-  }>;
-}
-
-interface GitHubSearchCodeResponse {
-  total_count: number;
-  incomplete_results: boolean;
-  items: GitHubSearchCodeResultItem[];
-}
-
 export async function searchCode(
   owner: string,
   repo: string,
   query: string,
-): Promise<GitHubSearchCodeResponse> {
+): Promise<GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.search.code>> {
   console.log(
     `Attempting to search code in GitHub: ${owner}/${repo} with query "${query}"`,
   );
@@ -484,7 +247,7 @@ export async function searchCode(
         Accept: "application/vnd.github.text-match+json",
       },
     });
-    return response.data as GitHubSearchCodeResponse;
+    return response.data; // Return Octokit's type directly
   } catch (e: any) {
     console.error(`GitHub API GET search code error: ${e.message}`);
     throw e;
@@ -497,7 +260,7 @@ export async function createBranch(
   repo: string,
   branch: string,
   fromBranch: string = "main",
-): Promise<any> {
+): Promise<GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.git.createRef>> {
   console.log(
     `Attempting to create branch ${branch} from ${fromBranch} in ${owner}/${repo}`,
   );
@@ -529,7 +292,7 @@ export async function getPullRequest(
   owner: string,
   repo: string,
   pullNumber: number,
-): Promise<any> {
+): Promise<GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.pulls.get>> {
   console.log(`Attempting to get PR ${pullNumber} from ${owner}/${repo}`);
   try {
     const response = await octokit.rest.pulls.get({
@@ -554,7 +317,7 @@ export async function createPullRequest(
   body?: string,
   draft?: boolean,
   maintainerCanModify?: boolean,
-): Promise<any> {
+): Promise<GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.pulls.create>> {
   console.log(
     `Attempting to create PR in ${owner}/${repo} from ${head} to ${base}`,
   );
@@ -577,7 +340,7 @@ export async function createPullRequest(
 }
 
 // Function to get the authenticated user
-export async function getMe(): Promise<any> {
+export async function getMe(): Promise<GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.users.getAuthenticated>> {
   console.log("Attempting to get authenticated GitHub user");
   try {
     const response = await octokit.rest.users.getAuthenticated();
@@ -604,7 +367,7 @@ export async function createOrUpdateFileInRepo(
   message: string,
   branch: string = "main", // Default branch, can make configurable
   sha?: string, // Optional SHA for updates
-): Promise<any> {
+): Promise<GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.repos.createOrUpdateFileContents>> {
   // Changed return type to any as it's not used by the new sync logic
   console.log(
     `Attempting to create/update file in GitHub: ${owner}/${repo}/${filePath} on branch ${branch}`,
