@@ -106,19 +106,22 @@ async function main() {
             result = { status: "error", message: `Unknown tool: ${toolName}` };
         }
 
-        return {
-          content: [{ type: "text", text: JSON.stringify(result) }],
-        };
+        // Wrap the result in the expected MCP format if it's not already
+        if (result && typeof result === 'object' && result.hasOwnProperty('content')) {
+          return result;
+        } else {
+          return {
+            content: [{ type: "text", text: JSON.stringify(result) }],
+          };
+        }
       } catch (error) {
         console.error("Error executing tool:", error);
         return {
+          isError: true,
           content: [
             {
               type: "text",
-              text: JSON.stringify({
-                status: "error",
-                message: error instanceof Error ? error.message : String(error),
-              }),
+              text: `Error: ${error instanceof Error ? error.message : String(error)}`,
             },
           ],
         };

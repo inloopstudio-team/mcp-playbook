@@ -21,8 +21,14 @@ interface ToolSchema {
 interface ToolDefinition {
   name: string;
   description: string;
-  inputSchema: ToolSchema; // Renamed from parameters
-  outputSchema: ToolSchema; // Added outputSchema
+  inputSchema: ToolSchema;
+  annotations?: {
+    title?: string;
+    readOnlyHint?: boolean;
+    destructiveHint?: boolean;
+    idempotentHint?: boolean;
+    openWorldHint?: boolean;
+  };
 }
 
 // Array holding all the tool definitions for the mcp-playbook server
@@ -35,16 +41,12 @@ export const toolDefinitions: ToolDefinition[] = [
       type: "object",
       properties: {},
     },
-    outputSchema: {
-      type: "object",
-      properties: {
-        instruction: {
-          type: "string",
-          description:
-            "Instruction for the LLM regarding the purpose of the mcp-playbook.",
-        },
-      },
-      required: ["instruction"],
+    annotations: {
+      title: "Initialize Playbook",
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: false,
+      openWorldHint: false,
     },
   },
   {
@@ -58,25 +60,16 @@ export const toolDefinitions: ToolDefinition[] = [
           type: "string",
           description:
             "The absolute or relative path to the root of the target project directory where the documentation structure should be created.",
-          required: true,
         },
       },
       required: ["target_project_dir"],
     },
-    outputSchema: {
-      // Basic output schema based on handler response
-      type: "object",
-      properties: {
-        status: {
-          type: "string",
-          description: "Execution status (success or error)",
-        },
-        message: {
-          type: "string",
-          description: "Description of the result or error",
-        },
-      },
-      required: ["status", "message"],
+    annotations: {
+      title: "Initialize Docs Structure",
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: false,
     },
   },
   {
@@ -90,40 +83,25 @@ export const toolDefinitions: ToolDefinition[] = [
           type: "string",
           description:
             "The absolute or relative path to the root of the target project directory.",
-          required: true,
         },
         spec_name: {
           type: "string",
           description:
             "The name of the specification file (without sequence numbers and the .md extension).",
-          required: true,
         },
         content: {
           type: "string",
-          description: "The markdown content of the specification. For small feature changes, provide a simple markdown outline. For larger or more complex changes, provide content formatted as a formal PRD or RFC.",
-          required: true,
+          description: "The markdown content of the specification. For small feature changes, provide a simple markdown outline is sufficient. For larger or more complex changes, format the content as a formal PRD or RFC.",
         },
       },
       required: ["target_project_dir", "spec_name", "content"],
     },
-    outputSchema: {
-      // Basic output schema based on handler response
-      type: "object",
-      properties: {
-        status: {
-          type: "string",
-          description: "Execution status (success or error)",
-        },
-        path: {
-          type: "string",
-          description: "Path to the created file if successful",
-        },
-        message: {
-          type: "string",
-          description: "Description of the result or error",
-        },
-      },
-      required: ["status"], // Status is always present
+    annotations: {
+      title: "Create Spec",
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: false,
+      openWorldHint: false,
     },
   },
   {
@@ -137,40 +115,25 @@ export const toolDefinitions: ToolDefinition[] = [
           type: "string",
           description:
             "The absolute path to the root of the target project directory. Using an absolute path is highly recommended for reliability.",
-          required: true,
         },
         adr_name: {
           type: "string",
           description:
             "The name of the ADR file (without sequence numbers and the .md extension).",
-          required: true,
         },
         content: {
           type: "string",
           description: "The markdown content of the ADR.",
-          required: true,
         },
       },
       required: ["target_project_dir", "adr_name", "content"],
     },
-    outputSchema: {
-      // Basic output schema based on handler response
-      type: "object",
-      properties: {
-        status: {
-          type: "string",
-          description: "Execution status (success or error)",
-        },
-        path: {
-          type: "string",
-          description: "Path to the created file if successful",
-        },
-        message: {
-          type: "string",
-          description: "Description of the result or error",
-        },
-      },
-      required: ["status"],
+    annotations: {
+      title: "Create ADR",
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: false,
+      openWorldHint: false,
     },
   },
   {
@@ -184,12 +147,10 @@ export const toolDefinitions: ToolDefinition[] = [
           type: "string",
           description:
             "The absolute path to the root of the target project directory. Using an absolute path is highly recommended for reliability.",
-          required: true,
         },
         entry_content: {
           type: "string",
           description: "The markdown content of the new changelog entry.",
-          required: true,
         },
         changelog_name: {
           type: "string",
@@ -199,24 +160,12 @@ export const toolDefinitions: ToolDefinition[] = [
       },
       required: ["target_project_dir", "entry_content", "changelog_name"],
     },
-    outputSchema: {
-      // Basic output schema based on handler response
-      type: "object",
-      properties: {
-        status: {
-          type: "string",
-          description: "Execution status (success or error)",
-        },
-        path: {
-          type: "string",
-          description: "Path to the updated file if successful",
-        },
-        message: {
-          type: "string",
-          description: "Description of the result or error",
-        },
-      },
-      required: ["status"],
+    annotations: {
+      title: "Create Changelog",
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: false,
+      openWorldHint: false,
     },
   },
   {
@@ -230,43 +179,21 @@ export const toolDefinitions: ToolDefinition[] = [
           type: "string",
           description:
             "The absolute path to the root of the target project directory where the chat log should be saved locally before uploading. Using an absolute path is highly recommended for reliability.",
-          required: true,
         },
         userId: {
           type: "string",
           description:
             "The unique ID of the user/LLM client (e.g., your GitHub email without the @domain.com). You can often get this using `git config user.email`.",
-          required: true,
         },
       },
       required: ["target_project_dir", "userId"],
     },
-    outputSchema: {
-      // Basic output schema based on handler response
-      type: "object",
-      properties: {
-        status: {
-          type: "string",
-          description: "Execution status (success or error)",
-        },
-        local_path: {
-          type: "string",
-          description: "Path to the locally saved file",
-        },
-        github_path: {
-          type: "string",
-          description: "Path within the GitHub repository",
-        },
-        github_url: {
-          type: "string",
-          description: "URL of the file on GitHub",
-        },
-        message: {
-          type: "string",
-          description: "Description of the result or error",
-        },
-      },
-      required: ["status"],
+    annotations: {
+      title: "Save and Upload Chat Log",
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: false,
+      openWorldHint: true,
     },
   },
   {
@@ -279,44 +206,16 @@ export const toolDefinitions: ToolDefinition[] = [
         keyword: {
           type: "string",
           description: "The keyword to search for in the runbook repository.",
-          required: true,
         },
       },
       required: ["keyword"],
     },
-    outputSchema: {
-      type: "object",
-      properties: {
-        results: {
-          type: "array",
-          description: "An array of search results.",
-          items: {
-            type: "object",
-            properties: {
-              path: {
-                type: "string",
-                description:
-                  "The path to the file where the keyword was found.",
-              },
-              snippet: {
-                type: "string",
-                description:
-                  "A snippet of the code or text where the keyword was found.",
-              },
-              url: {
-                type: "string",
-                description: "The URL to the file on GitHub.",
-              },
-            },
-            required: ["path", "snippet", "url"],
-          },
-        },
-        message: {
-          type: "string",
-          description: "A message describing the result of the search.",
-        },
-      },
-      required: ["results"],
+    annotations: {
+      title: "Search Runbook",
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: true,
     },
   },
   // Add more tools here as needed in the future
@@ -330,7 +229,6 @@ export const toolDefinitions: ToolDefinition[] = [
         content: {
           type: "string",
           description: "The markdown content of the runbook entry. Include frontmatter (--- title: ..., description: ..., date: ..., authors: ..., tags: ... ---) at the beginning for better organization.",
-          required: true,
         },
         target_folder: {
           type: "string",
@@ -343,7 +241,6 @@ export const toolDefinitions: ToolDefinition[] = [
             "automations",
             "action-policies-and-constraints"
           ],
-          required: true,
         },
         filename_slug: {
           type: "string",
@@ -372,27 +269,12 @@ export const toolDefinitions: ToolDefinition[] = [
       },
       required: ["content", "target_folder"],
     },
-    outputSchema: {
-      type: "object",
-      properties: {
-        status: {
-          type: "string",
-          description: "Execution status (success or error)",
-        },
-        pr_number: {
-          type: "number",
-          description: "The number of the created or updated Pull Request.",
-        },
-        pr_url: {
-          type: "string",
-          description: "The URL of the created or updated Pull Request.",
-        },
-        message: {
-          type: "string",
-          description: "Description of the result or error",
-        },
-      },
-      required: ["status"],
+    annotations: {
+      title: "Suggest Runbook",
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: false,
+      openWorldHint: true,
     },
   },
 ];
