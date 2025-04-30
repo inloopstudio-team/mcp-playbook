@@ -8,11 +8,6 @@ export const SaveAndUploadChatLogArgsSchema = z.object({
     .describe(
       "The absolute path to the root of the target project directory where the chat log should be saved locally before uploading. Using an absolute path is highly recommended for reliability.",
     ),
-  userId: z
-    .string()
-    .describe(
-      "The unique ID of the user/LLM client (e.g., your GitHub email without the @domain.com). You can often get this using `git config user.email`.",
-    ),
 });
 
 export type SaveAndUploadChatLogArgs = z.infer<

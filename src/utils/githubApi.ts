@@ -576,6 +576,18 @@ export async function createPullRequest(
   }
 }
 
+// Function to get the authenticated user
+export async function getMe(): Promise<any> {
+  console.log("Attempting to get authenticated GitHub user");
+  try {
+    const response = await octokit.rest.users.getAuthenticated();
+    return response.data;
+  } catch (e: any) {
+    console.error(`GitHub API get authenticated user error: ${e.message}`);
+    throw e;
+  }
+}
+
 // Utility to derive a project name from a path
 export function deriveProjectNameFromPath(projectPath: string): string {
   const normalizedPath = path.normalize(projectPath);

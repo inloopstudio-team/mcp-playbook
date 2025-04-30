@@ -42,12 +42,17 @@ export async function handleSaveAndUploadChatLog(
   args: SaveAndUploadChatLogArgs,
 ): Promise<any> {
   try {
-    const { target_project_dir, userId } = validateArgs(
+    const { target_project_dir } = validateArgs(
       SaveAndUploadChatLogArgsSchema,
       args,
     );
 
     const absoluteTargetProjectDir = path.resolve(target_project_dir);
+
+    // Get authenticated user's GitHub username
+    const user = await githubApi.getMe();
+    const userId = user.login; // Use login as the user identifier
+
     console.log(
       `Handling save_and_upload_chat_log for: ${absoluteTargetProjectDir}, user: ${userId}`,
     );
@@ -156,7 +161,7 @@ export async function handleSaveAndUploadChatLog(
     console.log(`New tree created with SHA: ${newTree.sha}`);
 
     // 5. Create a new commit object
-    const commitMessage = `Sync chat logs from ${projectName} for ${userId}`;
+    const commitMessage = `sync: merge chat logs from ${projectName} for ${userId}`;
     console.log(`Creating new commit: "${commitMessage}"`);
     const newCommit = await githubApi.createCommit(
       githubOwner,

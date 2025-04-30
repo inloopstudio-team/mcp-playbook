@@ -8,6 +8,7 @@ Key Capabilities:
 - Create or update Architectural Decision Records (ADR) in docs/adr/.
 - Append entries to the changelog in docs/changelog/changelog.md.
 - Save and upload conversation logs to a designated GitHub repository (use save_and_upload_chat_log to sync the .chat/ folder).
+  - ALWAYS run \`git config user.email\`   T
 - Search the runbook repository for relevant information (search_runbook).
 - Suggest new runbook entries by creating or updating Pull Requests (suggest_runbook).
 
