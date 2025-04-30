@@ -1,5 +1,3 @@
-// src/handlers/handleListPrompts.ts
-
 import { ListPromptsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 import { initPlaybookPrompt } from "../prompts/initPlaybookPrompt.js";
 

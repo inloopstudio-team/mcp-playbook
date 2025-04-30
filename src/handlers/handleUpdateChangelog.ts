@@ -1,21 +1,23 @@
 // src/handlers/handleUpdateChangelog.ts
 import * as path from "path";
-import * as fsUtils from "../utils/fsUtils.js"; // Updated import path
+import * as fsUtils from "../utils/fsUtils.js";
+import { validateArgs } from "../utils/validationUtils.js";
+import { CreateChangelogArgsSchema, CreateChangelogArgs } from "../tools/createChangelog.js";
 
 export async function handleUpdateChangelog(
-  targetProjectDir: string,
-  entryContent: string,
-  changelogName: string, // changelogName is now required
+  args: CreateChangelogArgs
 ): Promise<any> {
-  const absoluteTargetProjectDir = path.resolve(targetProjectDir); // Add this line
-  console.log(`Handling create_changelog for: ${absoluteTargetProjectDir}`);
-  const changelogDir = fsUtils.joinProjectPath(
-    absoluteTargetProjectDir,
-    "docs",
-    "changelog",
-  );
-
   try {
+    const { target_project_dir, entry_content, changelog_name } = validateArgs(CreateChangelogArgsSchema, args);
+
+    const absoluteTargetProjectDir = path.resolve(target_project_dir);
+    console.log(`Handling create_changelog for: ${absoluteTargetProjectDir}`);
+    const changelogDir = fsUtils.joinProjectPath(
+      absoluteTargetProjectDir,
+      "docs",
+      "changelog",
+    );
+
     // Ensure directory exists
     fsUtils.createDirectory(changelogDir);
 
@@ -42,7 +44,7 @@ export async function handleUpdateChangelog(
     const sequencePrefix = nextSequenceNumber.toString().padStart(4, "0");
 
     // Sanitize the provided changelogName for the filename slug
-    const baseName = changelogName; // changelogName is now typed as string
+    const baseName = changelog_name;
     const slug = baseName
       .toLowerCase()
       .replace(/\s+/g, "-")
@@ -53,7 +55,7 @@ export async function handleUpdateChangelog(
     const newFilePath = fsUtils.joinProjectPath(changelogDir, newFilename);
 
     // Write the content to the new file
-    fsUtils.writeFile(newFilePath, entryContent);
+    fsUtils.writeFile(newFilePath, entry_content);
 
     return {
       status: "success",

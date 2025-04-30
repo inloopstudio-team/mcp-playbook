@@ -1,17 +1,19 @@
 // src/handlers/handleCreateAdr.ts
 import * as path from "path";
-import * as fsUtils from "../utils/fsUtils.js"; // Updated import path
+import * as fsUtils from "../utils/fsUtils.js";
+import { validateArgs } from "../utils/validationUtils.js";
+import { CreateAdrArgsSchema, CreateAdrArgs } from "../tools/createAdr.js";
 
 export async function handleCreateAdr(
-  targetProjectDir: string,
-  adrName: string,
-  content: string,
+  args: CreateAdrArgs
 ): Promise<any> {
-  const absoluteTargetProjectDir = path.resolve(targetProjectDir); // Add this line
-  console.log(`Handling create_adr for: ${absoluteTargetProjectDir}, adr: ${adrName}`);
-  const adrDir = fsUtils.joinProjectPath(absoluteTargetProjectDir, "docs", "adr");
-
   try {
+    const { target_project_dir, adr_name, content } = validateArgs(CreateAdrArgsSchema, args);
+
+    const absoluteTargetProjectDir = path.resolve(target_project_dir);
+    console.log(`Handling create_adr for: ${absoluteTargetProjectDir}, adr: ${adr_name}`);
+    const adrDir = fsUtils.joinProjectPath(absoluteTargetProjectDir, "docs", "adr");
+
     // Ensure directory exists
     fsUtils.createDirectory(adrDir);
 
@@ -37,7 +39,7 @@ export async function handleCreateAdr(
     const sequencePrefix = nextSequenceNumber.toString().padStart(4, "0");
 
     // Sanitize the provided adrName for the filename slug
-    const slug = adrName
+    const slug = adr_name
       .toLowerCase()
       .replace(/\s+/g, "-")
       .replace(/[^a-z0-9_-]/g, "")

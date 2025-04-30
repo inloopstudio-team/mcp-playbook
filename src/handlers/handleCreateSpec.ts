@@ -1,19 +1,21 @@
 // src/handlers/handleCreateSpec.ts
 import * as path from "path";
-import * as fsUtils from "../utils/fsUtils.js"; // Updated import path
+import * as fsUtils from "../utils/fsUtils.js";
+import { validateArgs } from "../utils/validationUtils.js";
+import { CreateSpecArgsSchema, CreateSpecArgs } from "../tools/createSpec.js";
 
 export async function handleCreateSpec(
-  targetProjectDir: string,
-  specName: string,
-  content: string,
+  args: CreateSpecArgs
 ): Promise<any> {
-  const absoluteTargetProjectDir = path.resolve(targetProjectDir); // Add this line
-  console.log(
-    `Handling create_spec for: ${absoluteTargetProjectDir}, spec: ${specName}`,
-  );
-  const specsDir = fsUtils.joinProjectPath(absoluteTargetProjectDir, "docs", "specs");
-
   try {
+    const { target_project_dir, spec_name, content } = validateArgs(CreateSpecArgsSchema, args);
+
+    const absoluteTargetProjectDir = path.resolve(target_project_dir);
+    console.log(
+      `Handling create_spec for: ${absoluteTargetProjectDir}, spec: ${spec_name}`,
+    );
+    const specsDir = fsUtils.joinProjectPath(absoluteTargetProjectDir, "docs", "specs");
+
     // Ensure directory exists
     fsUtils.createDirectory(specsDir);
 
@@ -39,7 +41,7 @@ export async function handleCreateSpec(
     const sequencePrefix = nextSequenceNumber.toString().padStart(4, "0");
 
     // Sanitize the provided specName for the filename slug
-    const slug = specName
+    const slug = spec_name
       .toLowerCase()
       .replace(/\s+/g, "-")
       .replace(/[^a-z0-9_-]/g, "")

@@ -1,9 +1,11 @@
 // src/handlers/handleSaveAndUploadChatLog.ts
 import * as path from "path";
-import * as fsUtils from "../utils/fsUtils.js"; // Updated import path
-import * as githubApi from "../utils/githubApi.js"; // Updated import path
+import * as fsUtils from "../utils/fsUtils.js";
+import * as githubApi from "../utils/githubApi.js";
 import * as crypto from "crypto";
-import { RequestError } from "@octokit/request-error"; // Import RequestError
+import { RequestError } from "@octokit/request-error";
+import { validateArgs } from "../utils/validationUtils.js";
+import { SaveAndUploadChatLogArgsSchema, SaveAndUploadChatLogArgs } from "../tools/saveAndUploadChatLog.js";
 
 // Placeholder for conversation history retrieval
 // In a real MCP server, this would be provided by the framework hosting the server.
@@ -34,25 +36,26 @@ function getConversationHistoryPlaceholder(): ConversationTurn[] {
 }
 
 export async function handleSaveAndUploadChatLog(
-  targetProjectDir: string,
-  userId: string,
+  args: SaveAndUploadChatLogArgs
 ): Promise<any> {
-  const absoluteTargetProjectDir = path.resolve(targetProjectDir); // Add this line
-  console.log(
-    `Handling save_and_upload_chat_log for: ${absoluteTargetProjectDir}, user: ${userId}`,
-  );
-  const githubOwner = "dwarvesf";
-  const githubRepo = "prompt-log";
-  const githubBranch = "main"; // Or configure/determine branch
-  const ref = `heads/${githubBranch}`;
-
   try {
+    const { target_project_dir, userId } = validateArgs(SaveAndUploadChatLogArgsSchema, args);
+
+    const absoluteTargetProjectDir = path.resolve(target_project_dir);
+    console.log(
+      `Handling save_and_upload_chat_log for: ${absoluteTargetProjectDir}, user: ${userId}`,
+    );
+    const githubOwner = "dwarvesf";
+    const githubRepo = "prompt-log";
+    const githubBranch = "main"; // Or configure/determine branch
+    const ref = `heads/${githubBranch}`;
+
     // Derive GitHub path based on target project name and user ID
-    const projectName = githubApi.deriveProjectNameFromPath(absoluteTargetProjectDir); // Use absolute path here
+    const projectName = githubApi.deriveProjectNameFromPath(absoluteTargetProjectDir);
     const remoteChatDir = path.posix.join(projectName, userId, ".chat");
 
     // Ensure the local .chat directory exists in the target project
-    const localChatDir = fsUtils.joinProjectPath(absoluteTargetProjectDir, ".chat"); // Use absolute path here
+    const localChatDir = fsUtils.joinProjectPath(absoluteTargetProjectDir, ".chat");
     fsUtils.createDirectory(localChatDir);
 
     // Get list of local files in .chat directory

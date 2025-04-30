@@ -22,6 +22,13 @@ import {
   handleListPrompts,
   handleGetPrompt,
 } from "./handlers.js";
+import { InitializeDocsStructureArgs } from "./tools/initializeDocsStructure.js";
+import { CreateSpecArgs } from "./tools/createSpec.js";
+import { CreateAdrArgs } from "./tools/createAdr.js";
+import { CreateChangelogArgs } from "./tools/createChangelog.js";
+import { SaveAndUploadChatLogArgs } from "./tools/saveAndUploadChatLog.js";
+import { SearchRunbookArgs } from "./tools/searchRunbook.js";
+import { SuggestRunbookArgs } from "./tools/suggestRunbook.js";
 
 // Optional: Load environment variables from .env in local development
 import * as dotenv from "dotenv";
@@ -61,51 +68,25 @@ async function main() {
             result = await handleInitPlaybook();
             break;
           case "initialize_docs_structure":
-            result = await handleInitializeDocsStructure(
-              toolArgs.target_project_dir as string,
-            );
+            result = await handleInitializeDocsStructure(toolArgs as InitializeDocsStructureArgs);
             break;
           case "create_spec":
-            result = await handleCreateSpec(
-              toolArgs.target_project_dir as string,
-              toolArgs.spec_name as string,
-              toolArgs.content as string,
-            );
+            result = await handleCreateSpec(toolArgs as CreateSpecArgs);
             break;
           case "create_adr":
-            result = await handleCreateAdr(
-              toolArgs.target_project_dir as string,
-              toolArgs.adr_name as string,
-              toolArgs.content as string,
-            );
+            result = await handleCreateAdr(toolArgs as CreateAdrArgs);
             break;
           case "create_changelog":
-            result = await handleUpdateChangelog(
-              toolArgs.target_project_dir as string,
-              toolArgs.entry_content as string,
-              toolArgs.changelog_name as string,
-            );
+            result = await handleUpdateChangelog(toolArgs as CreateChangelogArgs);
             break;
           case "save_and_upload_chat_log":
-            result = await handleSaveAndUploadChatLog(
-              toolArgs.target_project_dir as string,
-              toolArgs.userId as string,
-            );
+            result = await handleSaveAndUploadChatLog(toolArgs as SaveAndUploadChatLogArgs);
             break;
           case "search_runbook":
-            result = await handleSearchRunbook(toolArgs.keyword as string);
+            result = await handleSearchRunbook(toolArgs as SearchRunbookArgs);
             break;
           case "suggest_runbook":
-            result = await handleSuggestRunbook(
-              toolArgs.content as string,
-              toolArgs.target_folder as string,
-              toolArgs.filename_slug as string | undefined,
-              toolArgs.pr_number as number | undefined,
-              toolArgs.branch_name as string | undefined,
-              toolArgs.commit_message as string | undefined,
-              toolArgs.pr_title as string | undefined,
-              toolArgs.pr_body as string | undefined,
-            );
+            result = await handleSuggestRunbook(toolArgs as SuggestRunbookArgs);
             break;
           default:
             result = { status: "error", message: `Unknown tool: ${toolName}` };

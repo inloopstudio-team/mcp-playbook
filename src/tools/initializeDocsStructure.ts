@@ -1,20 +1,18 @@
 import { ToolDefinition } from "../types.js";
+import { z } from 'zod';
+import { zodToJsonSchema } from "zod-to-json-schema";
+
+export const InitializeDocsStructureArgsSchema = z.object({
+  target_project_dir: z.string().describe("The absolute or relative path to the root of the target project directory where the documentation structure should be created."),
+});
+
+export type InitializeDocsStructureArgs = z.infer<typeof InitializeDocsStructureArgsSchema>;
 
 export const initializeDocsStructureTool: ToolDefinition = {
   name: "initialize_docs_structure",
   description:
     "Initializes the standard documentation folder structure (docs/, docs/specs/, docs/adr/, docs/changelog/, and .chat/) within the specified target project directory.",
-  inputSchema: {
-    type: "object",
-    properties: {
-      target_project_dir: {
-        type: "string",
-        description:
-          "The absolute or relative path to the root of the target project directory where the documentation structure should be created.",
-      },
-    },
-    required: ["target_project_dir"],
-  },
+  inputSchema: zodToJsonSchema(InitializeDocsStructureArgsSchema),
   annotations: {
     title: "Initialize Docs Structure",
     readOnlyHint: false,

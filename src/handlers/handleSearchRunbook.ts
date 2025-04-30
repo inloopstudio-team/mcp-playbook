@@ -1,27 +1,31 @@
 // src/handlers/handleSearchRunbook.ts
-import * as githubApi from "../utils/githubApi.js"; // Updated import path
+import * as githubApi from "../utils/githubApi.js";
+import { validateArgs } from "../utils/validationUtils.js";
+import { SearchRunbookArgsSchema, SearchRunbookArgs } from "../tools/searchRunbook.js";
 
 // In-memory cache for search results
 const searchCache = new Map<string, any>(); // Cache key: keyword, Cache value: GitHub search results
 
-export async function handleSearchRunbook(keyword: string): Promise<any> {
-  console.log(`Handling search_runbook for keyword: ${keyword}`);
-
-  // Check if the result is in the cache
-  if (searchCache.has(keyword)) {
-    console.log(`Cache hit for keyword: ${keyword}`);
-    return {
-      results: searchCache.get(keyword),
-      message: "Results from cache.",
-    };
-  }
-
-  console.log(`Cache miss for keyword: ${keyword}. Searching GitHub...`);
-  const githubOwner = "dwarvesf";
-  const githubRepo = "runbook";
-  const searchQuery = `repo:${githubOwner}/${githubRepo} ${keyword}`;
-
+export async function handleSearchRunbook(args: SearchRunbookArgs): Promise<any> {
   try {
+    const { keyword } = validateArgs(SearchRunbookArgsSchema, args);
+
+    console.log(`Handling search_runbook for keyword: ${keyword}`);
+
+    // Check if the result is in the cache
+    if (searchCache.has(keyword)) {
+      console.log(`Cache hit for keyword: ${keyword}`);
+      return {
+        results: searchCache.get(keyword),
+        message: "Results from cache.",
+      };
+    }
+
+    console.log(`Cache miss for keyword: ${keyword}. Searching GitHub...`);
+    const githubOwner = "dwarvesf";
+    const githubRepo = "runbook";
+    const searchQuery = `repo:${githubOwner}/${githubRepo} ${keyword}`;
+
     // Use the githubApi function to search code to get matching file paths
     const searchResults = await githubApi.searchCode(
       githubOwner,

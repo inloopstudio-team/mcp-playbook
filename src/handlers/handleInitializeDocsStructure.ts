@@ -1,13 +1,17 @@
 // src/handlers/handleInitializeDocsStructure.ts
 import * as path from "path";
-import * as fsUtils from "../utils/fsUtils.js"; // Updated import path
+import * as fsUtils from "../utils/fsUtils.js";
+import { validateArgs } from "../utils/validationUtils.js";
+import { InitializeDocsStructureArgsSchema, InitializeDocsStructureArgs } from "../tools/initializeDocsStructure.js";
 
 export async function handleInitializeDocsStructure(
-  targetProjectDir: string,
+  args: InitializeDocsStructureArgs
 ): Promise<any> {
-  const absoluteTargetProjectDir = path.resolve(targetProjectDir); // Add this line
-  console.log(`Handling initialize_docs_structure for: ${absoluteTargetProjectDir}`);
   try {
+    const { target_project_dir } = validateArgs(InitializeDocsStructureArgsSchema, args);
+
+    const absoluteTargetProjectDir = path.resolve(target_project_dir);
+    console.log(`Handling initialize_docs_structure for: ${absoluteTargetProjectDir}`);
     // Use fsUtils to create directories
     fsUtils.createDirectory(fsUtils.joinProjectPath(absoluteTargetProjectDir, "docs"));
     fsUtils.createDirectory(

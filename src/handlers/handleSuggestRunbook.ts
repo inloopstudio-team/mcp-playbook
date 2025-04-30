@@ -1,41 +1,26 @@
 // src/handlers/handleSuggestRunbook.ts
 import * as path from "path";
-import * as githubApi from "../utils/githubApi.js"; // Updated import path
-import { RequestError } from "@octokit/request-error"; // Import RequestError
+import * as githubApi from "../utils/githubApi.js";
+import { RequestError } from "@octokit/request-error";
+import { validateArgs } from "../utils/validationUtils.js";
+import { SuggestRunbookArgsSchema, SuggestRunbookArgs } from "../tools/suggestRunbook.js";
 
 export async function handleSuggestRunbook(
-  content: string,
-  target_folder: string,
-  filename_slug?: string,
-  pr_number?: number,
-  branch_name?: string,
-  commit_message?: string,
-  pr_title?: string,
-  pr_body?: string,
+  args: SuggestRunbookArgs
 ): Promise<any> {
-  console.log(`Handling suggest_runbook for folder: ${target_folder}`);
-
-  const githubOwner = "dwarvesf";
-  const githubRepo = "runbook";
-  const baseBranch = "main"; // Target branch for the PR
-
-  // 1. Validate target_folder
-  const allowedFolders = [
-    "technical-patterns",
-    "operational-state-reporting",
-    "human-escalation-protocols",
-    "diagnostic-and-information-gathering",
-    "automations",
-    "action-policies-and-constraints",
-  ];
-  if (!allowedFolders.includes(target_folder)) {
-    return {
-      status: "error",
-      message: `Invalid target_folder: ${target_folder}. Must be one of: ${allowedFolders.join(", ")}`,
-    };
-  }
-
   try {
+    const { content, target_folder, filename_slug, pr_number, branch_name, commit_message, pr_title, pr_body } = validateArgs(SuggestRunbookArgsSchema, args);
+
+    console.log(`Handling suggest_runbook for folder: ${target_folder}`);
+
+    const githubOwner = "dwarvesf";
+    const githubRepo = "runbook";
+    const baseBranch = "main"; // Target branch for the PR
+
+    // 1. Validate target_folder (Zod schema already handles this, but keeping for clarity/redundancy if needed)
+    // const allowedFolders = [ ... ]; // Defined in schema
+    // if (!allowedFolders.includes(target_folder)) { ... }
+
     // 2. Generate filename slug if not provided
     let finalFilenameSlug = filename_slug;
     if (!finalFilenameSlug) {
