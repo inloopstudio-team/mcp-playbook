@@ -16,7 +16,7 @@ import {
   handleSaveAndUploadChatLog,
   handleInitPlaybook,
   handleSearchRunbook,
-  handleSuggestRunbook, // Import the new handler
+  handleSuggestRunbook,
 } from "./handlers.js";
 
 // Optional: Load environment variables from .env in local development
