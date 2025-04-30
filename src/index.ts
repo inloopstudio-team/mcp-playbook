@@ -5,6 +5,8 @@ import {
   CallToolRequest,
   CallToolRequestSchema,
   ListToolsRequestSchema,
+  ListPromptsRequestSchema,
+  GetPromptRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 
 import toolDefinitions from "./tools/definitions.js";
@@ -17,6 +19,8 @@ import {
   handleInitPlaybook,
   handleSearchRunbook,
   handleSuggestRunbook,
+  handleListPrompts,
+  handleGetPrompt,
 } from "./handlers.js";
 
 // Optional: Load environment variables from .env in local development
@@ -33,6 +37,7 @@ async function main() {
     {
       capabilities: {
         tools: {},
+        prompts: {},
       },
     },
   );
@@ -135,6 +140,9 @@ async function main() {
       tools: toolDefinitions,
     };
   });
+
+  server.setRequestHandler(ListPromptsRequestSchema, handleListPrompts);
+  server.setRequestHandler(GetPromptRequestSchema, handleGetPrompt);
 
   const transport = new StdioServerTransport();
   console.log("Connecting server to transport...");

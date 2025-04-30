@@ -7,6 +7,8 @@ import { handleCreateAdr } from "./handlers/handleCreateAdr.js";
 import { handleUpdateChangelog } from "./handlers/handleUpdateChangelog.js";
 import { handleSaveAndUploadChatLog } from "./handlers/handleSaveAndUploadChatLog.js";
 import { handleSearchRunbook } from "./handlers/handleSearchRunbook.js";
+import { handleListPrompts } from "./handlers/handleListPrompts.js";
+import { handleGetPrompt } from "./handlers/handleGetPrompt.js";
 
 export {
   handleInitPlaybook,
@@ -17,4 +19,6 @@ export {
   handleUpdateChangelog,
   handleSaveAndUploadChatLog,
   handleSearchRunbook,
+  handleListPrompts,
+  handleGetPrompt,
 };
