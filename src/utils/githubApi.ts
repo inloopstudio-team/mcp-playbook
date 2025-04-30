@@ -1,13 +1,13 @@
 // src/githubApi.ts
-import * as path from "path";
-import { Buffer } from "buffer";
-import { Octokit } from "octokit";
 import { RequestError } from "@octokit/request-error";
 import {
   Endpoints,
   GetResponseDataTypeFromEndpointMethod,
   RequestParameters,
 } from "@octokit/types";
+import { Buffer } from "buffer";
+import { Octokit } from "octokit";
+import * as path from "path";
 
 const GITHUB_API_BASE_URL = "https://api.github.com";
 
@@ -58,7 +58,9 @@ export async function getRef(
   owner: string,
   repo: string,
   ref: string,
-): Promise<GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.git.getRef>> {
+): Promise<
+  GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.git.getRef>
+> {
   console.log(`Attempting to get ref from GitHub: ${owner}/${repo}/${ref}`);
 
   try {
@@ -78,7 +80,9 @@ export async function getCommit(
   owner: string,
   repo: string,
   commitSha: string,
-): Promise<GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.git.getCommit>> {
+): Promise<
+  GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.git.getCommit>
+> {
   console.log(
     `Attempting to get commit from GitHub: ${owner}/${repo}/${commitSha}`,
   );
@@ -100,7 +104,9 @@ export async function getTree(
   owner: string,
   repo: string,
   treeSha: string,
-): Promise<GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.git.getTree>> {
+): Promise<
+  GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.git.getTree>
+> {
   console.log(
     `Attempting to get tree from GitHub: ${owner}/${repo}/${treeSha}`,
   );
@@ -123,7 +129,9 @@ export async function createBlob(
   repo: string,
   content: string,
   encoding: string = "utf-8",
-): Promise<GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.git.createBlob>> {
+): Promise<
+  GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.git.createBlob>
+> {
   console.log(`Attempting to create blob in GitHub: ${owner}/${repo}`);
 
   const payload = {
@@ -144,14 +152,17 @@ export async function createBlob(
   }
 }
 
-export type GitHubCreateTreeItem = RequestParameters & Endpoints["POST /repos/{owner}/{repo}/git/trees"]["parameters"]["tree"][number];
+export type GitHubCreateTreeItem = RequestParameters &
+  Endpoints["POST /repos/{owner}/{repo}/git/trees"]["parameters"]["tree"][number];
 
 export async function createTree(
   owner: string,
   repo: string,
   treeItems: GitHubCreateTreeItem[],
   baseTreeSha?: string,
-): Promise<GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.git.createTree>> {
+): Promise<
+  GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.git.createTree>
+> {
   console.log(`Attempting to create tree in GitHub: ${owner}/${repo}`);
 
   const payload: any = {
@@ -180,7 +191,9 @@ export async function createCommit(
   message: string,
   treeSha: string,
   parentCommitSha: string,
-): Promise<GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.git.createCommit>> {
+): Promise<
+  GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.git.createCommit>
+> {
   console.log(`Attempting to create commit in GitHub: ${owner}/${repo}`);
 
   const payload = {
@@ -208,7 +221,9 @@ export async function updateRef(
   ref: string,
   commitSha: string,
   force: boolean = false,
-): Promise<GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.git.updateRef>> {
+): Promise<
+  GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.git.updateRef>
+> {
   console.log(`Attempting to update ref in GitHub: ${owner}/${repo}/${ref}`);
 
   const payload = {
@@ -234,7 +249,9 @@ export async function searchCode(
   owner: string,
   repo: string,
   query: string,
-): Promise<GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.search.code>> {
+): Promise<
+  GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.search.code>
+> {
   console.log(
     `Attempting to search code in GitHub: ${owner}/${repo} with query "${query}"`,
   );
@@ -260,7 +277,9 @@ export async function createBranch(
   repo: string,
   branch: string,
   fromBranch: string = "main",
-): Promise<GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.git.createRef>> {
+): Promise<
+  GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.git.createRef>
+> {
   console.log(
     `Attempting to create branch ${branch} from ${fromBranch} in ${owner}/${repo}`,
   );
@@ -292,7 +311,9 @@ export async function getPullRequest(
   owner: string,
   repo: string,
   pullNumber: number,
-): Promise<GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.pulls.get>> {
+): Promise<
+  GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.pulls.get>
+> {
   console.log(`Attempting to get PR ${pullNumber} from ${owner}/${repo}`);
   try {
     const response = await octokit.rest.pulls.get({
@@ -317,7 +338,9 @@ export async function createPullRequest(
   body?: string,
   draft?: boolean,
   maintainerCanModify?: boolean,
-): Promise<GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.pulls.create>> {
+): Promise<
+  GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.pulls.create>
+> {
   console.log(
     `Attempting to create PR in ${owner}/${repo} from ${head} to ${base}`,
   );
@@ -340,7 +363,11 @@ export async function createPullRequest(
 }
 
 // Function to get the authenticated user
-export async function getMe(): Promise<GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.users.getAuthenticated>> {
+export async function getMe(): Promise<
+  GetResponseDataTypeFromEndpointMethod<
+    typeof octokit.rest.users.getAuthenticated
+  >
+> {
   console.log("Attempting to get authenticated GitHub user");
   try {
     const response = await octokit.rest.users.getAuthenticated();
@@ -367,7 +394,11 @@ export async function createOrUpdateFileInRepo(
   message: string,
   branch: string = "main", // Default branch, can make configurable
   sha?: string, // Optional SHA for updates
-): Promise<GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.repos.createOrUpdateFileContents>> {
+): Promise<
+  GetResponseDataTypeFromEndpointMethod<
+    typeof octokit.rest.repos.createOrUpdateFileContents
+  >
+> {
   // Changed return type to any as it's not used by the new sync logic
   console.log(
     `Attempting to create/update file in GitHub: ${owner}/${repo}/${filePath} on branch ${branch}`,

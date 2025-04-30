@@ -1,10 +1,10 @@
 // src/handlers/handleSearchRunbook.ts
+import {
+  SearchRunbookArgs,
+  SearchRunbookArgsSchema,
+} from "../tools/searchRunbook.js";
 import * as githubApi from "../utils/githubApi.js";
 import { validateArgs } from "../utils/validationUtils.js";
-import {
-  SearchRunbookArgsSchema,
-  SearchRunbookArgs,
-} from "../tools/searchRunbook.js";
 
 // In-memory cache for search results
 const searchCache = new Map<string, any>(); // Cache key: keyword, Cache value: GitHub search results

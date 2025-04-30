@@ -1,6 +1,3 @@
-import { ListPromptsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
-import { initPlaybookPrompt } from "../prompts/initPlaybookPrompt.js";
-
 export async function handleListPrompts(): Promise<any> {
   console.log("Handling prompts/list");
 

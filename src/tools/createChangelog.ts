@@ -1,6 +1,6 @@
-import { ToolDefinition } from "../types.js";
 import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
+import { ToolDefinition } from "../types.js";
 
 export const CreateChangelogArgsSchema = z.object({
   target_project_dir: z

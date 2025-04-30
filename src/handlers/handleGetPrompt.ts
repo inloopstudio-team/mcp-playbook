@@ -1,8 +1,8 @@
 // src/handlers/handleGetPrompt.ts
 
+import { z } from "zod";
 import { initPlaybookPrompt } from "../prompts/initPlaybookPrompt.js";
 import { validateArgs } from "../utils/validationUtils.js";
-import { z } from "zod";
 
 const GetPromptArgsSchema = z.object({
   params: z.object({

@@ -1,11 +1,11 @@
 // src/handlers/handleInitializeDocsStructure.ts
 import * as path from "path";
+import {
+  InitializeDocsStructureArgs,
+  InitializeDocsStructureArgsSchema,
+} from "../tools/initializeDocsStructure.js";
 import * as fsUtils from "../utils/fsUtils.js";
 import { validateArgs } from "../utils/validationUtils.js";
-import {
-  InitializeDocsStructureArgsSchema,
-  InitializeDocsStructureArgs,
-} from "../tools/initializeDocsStructure.js";
 
 export async function handleInitializeDocsStructure(
   args: InitializeDocsStructureArgs,

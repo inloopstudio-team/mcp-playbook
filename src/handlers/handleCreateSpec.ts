@@ -1,8 +1,8 @@
 // src/handlers/handleCreateSpec.ts
 import * as path from "path";
+import { CreateSpecArgs, CreateSpecArgsSchema } from "../tools/createSpec.js";
 import * as fsUtils from "../utils/fsUtils.js";
 import { validateArgs } from "../utils/validationUtils.js";
-import { CreateSpecArgsSchema, CreateSpecArgs } from "../tools/createSpec.js";
 
 export async function handleCreateSpec(args: CreateSpecArgs): Promise<any> {
   try {

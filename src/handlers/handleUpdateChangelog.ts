@@ -1,11 +1,11 @@
 // src/handlers/handleUpdateChangelog.ts
 import * as path from "path";
+import {
+  CreateChangelogArgs,
+  CreateChangelogArgsSchema,
+} from "../tools/createChangelog.js";
 import * as fsUtils from "../utils/fsUtils.js";
 import { validateArgs } from "../utils/validationUtils.js";
-import {
-  CreateChangelogArgsSchema,
-  CreateChangelogArgs,
-} from "../tools/createChangelog.js";
 
 export async function handleUpdateChangelog(
   args: CreateChangelogArgs,

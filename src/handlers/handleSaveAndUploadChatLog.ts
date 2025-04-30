@@ -1,12 +1,12 @@
 // src/handlers/handleSaveAndUploadChatLog.ts
 import * as path from "path";
+import {
+  SaveAndUploadChatLogArgs,
+  SaveAndUploadChatLogArgsSchema,
+} from "../tools/saveAndUploadChatLog.js";
 import * as fsUtils from "../utils/fsUtils.js";
 import * as githubApi from "../utils/githubApi.js";
 import { validateArgs } from "../utils/validationUtils.js";
-import {
-  SaveAndUploadChatLogArgsSchema,
-  SaveAndUploadChatLogArgs,
-} from "../tools/saveAndUploadChatLog.js";
 
 // Placeholder for conversation history retrieval
 // In a real MCP server, this would be provided by the framework hosting the server.

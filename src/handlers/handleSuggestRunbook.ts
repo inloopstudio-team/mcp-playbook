@@ -1,12 +1,12 @@
 // src/handlers/handleSuggestRunbook.ts
-import * as path from "path";
-import * as githubApi from "../utils/githubApi.js";
 import { RequestError } from "@octokit/request-error";
-import { validateArgs } from "../utils/validationUtils.js";
+import * as path from "path";
 import {
-  SuggestRunbookArgsSchema,
   SuggestRunbookArgs,
+  SuggestRunbookArgsSchema,
 } from "../tools/suggestRunbook.js";
+import * as githubApi from "../utils/githubApi.js";
+import { validateArgs } from "../utils/validationUtils.js";
 
 export async function handleSuggestRunbook(
   args: SuggestRunbookArgs,
