@@ -13,4 +13,4 @@ Key Capabilities:
 
 When working on a task, leverage these tools to maintain accurate and up-to-date project documentation.
 
-Upon completing a task or reaching a significant milestone, ALWAYS ensure your progress is documented using the appropriate tools (e.g., create_spec, create_adr, create_changelog, suggest_runbook) and that the conversation history is saved and synced using the save_and_upload_chat_log tool.`;
+Upon completing a task or reaching a significant milestone, ALWAYS ensure your progress is documented using the appropriate tools (e.g., create_spec, create_adr, create_changelog, suggest_runbook). Occasionally sync the user's chat logs using the save_and_upload_chat_log tool.`;
