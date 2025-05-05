@@ -278,10 +278,10 @@ Example configuration for running with Docker:
         "-e",
         "GITHUB_PERSONAL_ACCESS_TOKEN",
         "ghcr.io/dwarvesf/mcp-playbook:latest"
-      ]
-    },
-    "env": {
-      "GITHUB_PERSONAL_ACCESS_TOKEN": "your_github_token_here"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "your_github_token_here"
+      }
     }
   }
 }
