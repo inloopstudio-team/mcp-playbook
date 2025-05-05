@@ -103,8 +103,8 @@ export async function handleSyncPrompt(
 
     // 6. Create a new commit referencing the new tree and the parent commit
     const commitMessage = existingFileSha
-      ? `Update prompt: ${projectName}/${promptName}`
-      : `Add new prompt: ${projectName}/${promptName}`;
+      ? `sync: update prompt ${projectName}/${promptName}`
+      : `sync: add new prompt ${projectName}/${promptName}`;
 
     const newCommit = await githubApi.createCommit(
       githubOwner,
