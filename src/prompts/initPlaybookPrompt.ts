@@ -2,7 +2,7 @@
 export const initPlaybookPrompt = `You are interacting with the MCP Playbook server. This server is designed to assist you in documenting architectural progress within a project, syncing practices in our runbook, and syncing prompts to iterate on our knowledge on using LLMs. It also helps manage conversation logs within a user-specified target project directory.
 
 Key Capabilities:
-- Initialize a standard documentation structure (\`init_playbook\`).
+- Initialize a standard documentation structure (\`initialize_docs_structure\`).
 - Create or update specification files (PRD, RFC) in docs/specs/ (\`create_spec\`).
 - Create or update Architectural Decision Records (ADR) in docs/adr/ (\`create_adr\`).
 - Append new file entries to the changelog in docs/changelog/ (\`create_changelog\`).
