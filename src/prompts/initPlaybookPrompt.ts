@@ -1,4 +1,3 @@
-// src/prompts/initPlaybookPrompt.ts
 
 export const initPlaybookPrompt = `You are interacting with the MCP Playbook server. This server is designed to assist you in managing project documentation and conversation logs within a user-specified target project directory.
 

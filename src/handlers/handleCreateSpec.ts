@@ -1,4 +1,3 @@
-// src/handlers/handleCreateSpec.ts
 import * as path from "path";
 import { CreateSpecArgs, CreateSpecArgsSchema } from "../tools/createSpec.js";
 import * as fsUtils from "../utils/fsUtils.js";

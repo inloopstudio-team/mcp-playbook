@@ -1,4 +1,3 @@
-// src/handlers.ts
 import { handleCreateAdr } from "./handlers/handleCreateAdr.js";
 import { handleCreateSpec } from "./handlers/handleCreateSpec.js";
 import { handleGetPrompt } from "./handlers/handleGetPrompt.js";

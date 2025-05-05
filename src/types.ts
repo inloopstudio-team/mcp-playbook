@@ -1,4 +1,3 @@
-// src/types.ts
 
 import { JsonSchema7Type } from "zod-to-json-schema";
 

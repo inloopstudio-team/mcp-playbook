@@ -1,4 +1,3 @@
-// src/tools/definitions.ts
 
 import { ToolDefinition } from "../types.js";
 import { createAdrTool } from "./createAdr.js";

@@ -1,4 +1,3 @@
-// src/handlers/handleSearchRunbook.ts
 import {
   SearchRunbookArgs,
   SearchRunbookArgsSchema,

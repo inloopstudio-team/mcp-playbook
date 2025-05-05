@@ -1,4 +1,3 @@
-// src/handlers/handleInitializeDocsStructure.ts
 import * as path from "path";
 import {
   InitializeDocsStructureArgs,

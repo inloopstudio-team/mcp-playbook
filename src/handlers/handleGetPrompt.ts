@@ -1,4 +1,3 @@
-// src/handlers/handleGetPrompt.ts
 
 import { z } from "zod";
 import { initPlaybookPrompt } from "../prompts/initPlaybookPrompt.js";

@@ -1,4 +1,3 @@
-// src/githubApi.ts
 import { RequestError } from "@octokit/request-error";
 import {
   Endpoints,

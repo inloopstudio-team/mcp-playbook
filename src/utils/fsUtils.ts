@@ -1,4 +1,3 @@
-// src/fsUtils.ts
 import * as fs from "fs";
 import * as path from "path";
 
