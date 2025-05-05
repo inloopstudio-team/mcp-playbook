@@ -7,6 +7,7 @@ import { handleListPrompts } from "./handlers/handleListPrompts.js";
 import { handleSaveAndUploadChatLog } from "./handlers/handleSaveAndUploadChatLog.js";
 import { handleSearchRunbook } from "./handlers/handleSearchRunbook.js";
 import { handleSuggestRunbook } from "./handlers/handleSuggestRunbook.js";
+import { handleSyncPrompt } from "./handlers/handleSyncPrompt.js";
 import { handleUpdateChangelog } from "./handlers/handleUpdateChangelog.js";
 
 export {
@@ -19,5 +20,6 @@ export {
   handleSaveAndUploadChatLog,
   handleSearchRunbook,
   handleSuggestRunbook,
+  handleSyncPrompt,
   handleUpdateChangelog,
 };

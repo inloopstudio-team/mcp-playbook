@@ -19,6 +19,7 @@ import {
   handleSaveAndUploadChatLog,
   handleSearchRunbook,
   handleSuggestRunbook,
+  handleSyncPrompt,
   handleUpdateChangelog,
 } from "./handlers.js";
 import { CreateAdrArgs } from "./tools/createAdr.js";
@@ -29,6 +30,7 @@ import { InitializeDocsStructureArgs } from "./tools/initializeDocsStructure.js"
 import { SaveAndUploadChatLogArgs } from "./tools/saveAndUploadChatLog.js";
 import { SearchRunbookArgs } from "./tools/searchRunbook.js";
 import { SuggestRunbookArgs } from "./tools/suggestRunbook.js";
+import { SyncPromptArgs } from "./tools/syncPrompt.js";
 
 // Optional: Load environment variables from .env in local development
 import * as dotenv from "dotenv";
@@ -93,6 +95,9 @@ async function main() {
             break;
           case "suggest_runbook":
             result = await handleSuggestRunbook(toolArgs as SuggestRunbookArgs);
+            break;
+          case "sync_prompt":
+            result = await handleSyncPrompt(toolArgs as SyncPromptArgs);
             break;
           default:
             result = { status: "error", message: `Unknown tool: ${toolName}` };

@@ -8,6 +8,7 @@ import { initializeDocsStructureTool } from "./initializeDocsStructure.js";
 import { saveAndUploadChatLogTool } from "./saveAndUploadChatLog.js";
 import { searchRunbookTool } from "./searchRunbook.js";
 import { suggestRunbookTool } from "./suggestRunbook.js";
+import { syncPromptTool } from "./syncPrompt.js";
 
 // Array holding all the tool definitions for the mcp-playbook server
 export const toolDefinitions: ToolDefinition[] = [
@@ -19,6 +20,7 @@ export const toolDefinitions: ToolDefinition[] = [
   saveAndUploadChatLogTool,
   searchRunbookTool,
   suggestRunbookTool,
+  syncPromptTool,
 ];
 
 export default toolDefinitions;
