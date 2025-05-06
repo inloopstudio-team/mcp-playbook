@@ -22,6 +22,25 @@ This `mcp-playbook` server is a self-contained Node.js/TypeScript application th
 
 The server operates on a `target_project_dir` specified by the LLM, managing files and directories within that location. It does _not_ store documentation or chat logs within its own repository structure.
 
+### Data Flow and Interaction
+
+The interaction between the AI conversation, file exploration, the LLM, the `mcp-playbook` server, and the GitHub repositories can be visualized as follows:
+
+```mermaid
+graph TD
+    A[LLM] --> B("AI Conversation")
+    B --> C{Explore Files}
+    C -->|Files with Prompts| D("Prompts in Files")
+    C -->|Files without Prompts| B
+    B -->|Provides Context| F("MCP Playbook Server")
+    D -->|Provides Context| F
+    F -->|suggest_runbook| G["dwarvesf/runbook (Practices/Specs)"]
+    F -->|save_and_upload_chat_log| H["dwarvesf/prompt-log (Conversation Logs)"]
+    F -->|sync_prompt| I["dwarvesf/prompt-db (Synced Prompts)"]
+```
+
+This diagram illustrates how the AI conversation and the prompts found during file exploration provide context to the MCP Playbook server. The server then executes the `suggest_runbook`, `save_and_upload_chat_log`, and `sync_prompt` tools to interact with the respective GitHub repositories.
+
 ## Tool Details
 
 ### `init_playbook`
