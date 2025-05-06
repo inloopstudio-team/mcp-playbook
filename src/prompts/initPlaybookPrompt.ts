@@ -14,6 +14,6 @@ Guidelines:
 - When creating documentation files (Specs, ADRs, Changelogs), do not include sequence numbers in the file names.
 - Always use an absolute path for the \`target_project_dir\` parameter when using tools that require it.
 
-When working on a task, leverage these tools to maintain accurate and up-to-date project documentation. Whenever you encounter an LLM prompt while reading files or working on a project, take your time to use the \`sync_prompt\` tool to save that prompt to the prompt-db repository.
+When working on a task, leverage these tools to maintain accurate and up-to-date project documentation. Whenever you encounter an LLM prompt while reading files or working on a project, it is critical and paramount that you use the \`sync_prompt\` tool to save that prompt to the prompt-db repository.
 
 Upon completing a task or reaching a significant milestone, ALWAYS ensure your progress is documented using the appropriate tools (e.g., \`create_spec\`, \`create_adr\`, \`create_changelog\`, \`suggest_runbook\`). Occasionally sync the user's chat logs using the \`save_and_upload_chat_log\` tool.`;
