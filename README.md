@@ -15,6 +15,7 @@ A Model Context Protocol (MCP) server for managing project documentation and sav
 | `search_runbook`            | Fuzzy search for keywords in the `dwarvesf/runbook` GitHub repository and return the top 5 matching files with their full content.                                                                                                            |
 | `suggest_runbook`           | Creates or updates a Pull Request in the dwarvesf/runbook repository with a new runbook entry.                                                                                                                                                |
 | `sync_prompt`               | Syncs an LLM prompt to the dwarvesf/prompt-db GitHub repository.                                                                                                                                                                              |
+| `think`                     | Use the tool to think about something. It will not obtain new information or make any changes to the repository, but just log the thought. Use it when complex reasoning or brainstorming is needed.                                          |
 
 ## Overview
 
@@ -237,6 +238,42 @@ A JSON object indicating success or failure, including the GitHub path and URL i
   "commit_sha": "string" | undefined, // SHA of the commit if successful
   "commit_url": "string" | undefined, // URL of the commit if successful
   "message": "string" // Description of the result or error
+}
+```
+
+### `think`
+
+Use the tool to think about something. It will not obtain new information or make any changes to the repository, but just log the thought. Use it when complex reasoning or brainstorming is needed. For example, if you explore the repo and discover the source of a bug, call this tool to brainstorm several unique ways of fixing the bug, and assess which change(s) are likely to be simplest and most effective. Alternatively, if you receive some test results, call this tool to brainstorm ways to fix the failing tests.
+
+**Parameters:**
+
+- `thought` (string, required): Your thoughts.
+
+**Returns:**
+A JSON object containing the thought that was processed. The server wraps the raw string returned by the handler.
+
+```json
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "\"Your processed thought here\"" // Note: The thought string itself will be JSON stringified
+    }
+  ]
+}
+```
+
+Or, if an error occurs:
+
+```json
+{
+  "isError": true,
+  "content": [
+    {
+      "type": "text",
+      "text": "Error: Invalid arguments: Your error message"
+    }
+  ]
 }
 ```
 

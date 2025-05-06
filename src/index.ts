@@ -21,6 +21,7 @@ import {
   handleSuggestRunbook,
   handleSyncPrompt,
   handleUpdateChangelog,
+  handleThinkTool,
 } from "./handlers.js";
 import { CreateAdrArgs } from "./tools/createAdr.js";
 import { CreateChangelogArgs } from "./tools/createChangelog.js";
@@ -31,6 +32,7 @@ import { SaveAndUploadChatLogArgs } from "./tools/saveAndUploadChatLog.js";
 import { SearchRunbookArgs } from "./tools/searchRunbook.js";
 import { SuggestRunbookArgs } from "./tools/suggestRunbook.js";
 import { SyncPromptArgs } from "./tools/syncPrompt.js";
+import { ThinkToolArgs } from "./tools/thinkTool.js";
 
 // Optional: Load environment variables from .env in local development
 import * as dotenv from "dotenv";
@@ -98,6 +100,9 @@ async function main() {
             break;
           case "sync_prompt":
             result = await handleSyncPrompt(toolArgs as SyncPromptArgs);
+            break;
+          case "think":
+            result = await handleThinkTool(toolArgs as ThinkToolArgs);
             break;
           default:
             result = { status: "error", message: `Unknown tool: ${toolName}` };

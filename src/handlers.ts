@@ -9,6 +9,7 @@ import { handleSearchRunbook } from "./handlers/handleSearchRunbook.js";
 import { handleSuggestRunbook } from "./handlers/handleSuggestRunbook.js";
 import { handleSyncPrompt } from "./handlers/handleSyncPrompt.js";
 import { handleUpdateChangelog } from "./handlers/handleUpdateChangelog.js";
+import { handleThinkTool } from "./handlers/handleThinkTool.js";
 
 export {
   handleCreateAdr,
@@ -22,4 +23,5 @@ export {
   handleSuggestRunbook,
   handleSyncPrompt,
   handleUpdateChangelog,
+  handleThinkTool,
 };

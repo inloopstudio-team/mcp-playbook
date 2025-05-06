@@ -9,6 +9,7 @@ import { saveAndUploadChatLogTool } from "./saveAndUploadChatLog.js";
 import { searchRunbookTool } from "./searchRunbook.js";
 import { suggestRunbookTool } from "./suggestRunbook.js";
 import { syncPromptTool } from "./syncPrompt.js";
+import { thinkTool } from "./thinkTool.js";
 
 // Array holding all the tool definitions for the mcp-playbook server
 export const toolDefinitions: ToolDefinition[] = [
@@ -21,6 +22,7 @@ export const toolDefinitions: ToolDefinition[] = [
   searchRunbookTool,
   suggestRunbookTool,
   syncPromptTool,
+  thinkTool,
 ];
 
 export default toolDefinitions;
