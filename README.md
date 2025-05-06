@@ -14,6 +14,7 @@ A Model Context Protocol (MCP) server for managing project documentation and sav
 | `save_and_upload_chat_log`  | Captures the current conversation history, saves it as a markdown file in the .chat/ directory of the target project, and uploads it to the dwarvesf/prompt-log GitHub repository. Requires a user ID for organization.                       |
 | `search_runbook`            | Fuzzy search for keywords in the `dwarvesf/runbook` GitHub repository and return the top 5 matching files with their full content.                                                                                                            |
 | `suggest_runbook`           | Creates or updates a Pull Request in the dwarvesf/runbook repository with a new runbook entry.                                                                                                                                                |
+| `sync_prompt`               | Syncs an LLM prompt to the dwarvesf/prompt-db GitHub repository.                                                                                                                                                                              |
 
 ## Overview
 
@@ -192,6 +193,30 @@ A JSON object indicating success or failure, including the PR number and URL if 
   "status": "success" | "error",
   "pr_number": "number" | undefined, // The number of the created or updated Pull Request.
   "pr_url": "string" | undefined, // The URL of the created or updated Pull Request.
+  "message": "string" // Description of the result or error
+}
+```
+
+### `sync_prompt`
+
+Syncs an LLM prompt to the `dwarvesf/prompt-db` GitHub repository.
+
+**Parameters:**
+
+- `projectName` (string, required): The name of the project the prompt belongs to.
+- `promptName` (string, required): The variable or logical name of the prompt within the project.
+- `promptContent` (string, required): The actual content of the LLM prompt.
+
+**Returns:**
+A JSON object indicating success or failure, including the GitHub path and URL if successful.
+
+```json
+{
+  "status": "success" | "error",
+  "github_path": "string" | undefined, // Path within the GitHub repository
+  "github_url": "string" | undefined, // URL of the file on GitHub
+  "commit_sha": "string" | undefined, // SHA of the commit if successful
+  "commit_url": "string" | undefined, // URL of the commit if successful
   "message": "string" // Description of the result or error
 }
 ```
