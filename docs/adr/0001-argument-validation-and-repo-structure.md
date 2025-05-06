@@ -1,4 +1,4 @@
-# 0001 - Argument Validation and Repository Structure
+# Argument Validation and Repository Structure
 
 ## Status
 

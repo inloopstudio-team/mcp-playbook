@@ -1,4 +1,4 @@
-# 0002 - Purpose of the Init Playbook Prompt and Tool
+# Purpose of the Init Playbook Prompt and Tool
 
 ## Status
 
