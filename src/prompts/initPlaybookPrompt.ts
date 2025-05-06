@@ -14,6 +14,7 @@ Guidelines:
 - When creating documentation files (Specs, ADRs, Changelogs), do not include sequence numbers in the file names.
 - Always use an absolute path for the \`target_project_dir\` parameter when using tools that require it.
 - When creating or suggesting runbook entries, ensure the content is general and avoids project-specific details, focusing on broader solutions and patterns.
+- If you find yourself in a loop or are not confident in how to proceed with a task, use the \`search_runbook\` tool to look for relevant information in the runbook repository.
 
 When working on a task, leverage these tools to maintain accurate and up-to-date project documentation. Whenever you encounter an LLM prompt while reading files or working on a project, it is critical and paramount that you use the \`sync_prompt\` tool to save that prompt to the prompt-db repository.
 
