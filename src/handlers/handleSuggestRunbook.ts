@@ -6,6 +6,7 @@ import {
 } from "../tools/suggestRunbook.js";
 import * as githubApi from "../utils/githubApi.js";
 import { validateArgs } from "../utils/validationUtils.js";
+import { injectAuthorIntoFrontmatter } from "../utils/frontmatterUtils.js";
 
 export async function handleSuggestRunbook(
   args: SuggestRunbookArgs,
@@ -22,6 +23,14 @@ export async function handleSuggestRunbook(
       pr_body,
     } = validateArgs(SuggestRunbookArgsSchema, args);
 
+    // Get authenticated user and inject into frontmatter
+    const user = await githubApi.getMe();
+    const username = user.login;
+    console.log(`Authenticated user: ${username}`);
+
+    // Inject the authenticated user into the frontmatter using the utility function
+    const contentToUse = injectAuthorIntoFrontmatter(content, username);
+
     console.log(`Handling suggest_runbook for folder: ${target_folder}`);
 
     const githubOwner = "dwarvesf";
@@ -36,7 +45,7 @@ export async function handleSuggestRunbook(
     let finalFilenameSlug = filename_slug;
     if (!finalFilenameSlug) {
       // Attempt to extract title from markdown content (first heading)
-      const titleMatch = content.match(/^#\s+(.*)/m);
+      const titleMatch = contentToUse.match(/^#\s+(.*)/m); // Use contentToUse here
       if (titleMatch && titleMatch[1]) {
         finalFilenameSlug = titleMatch[1]
           .toLowerCase()
@@ -120,7 +129,7 @@ export async function handleSuggestRunbook(
       githubOwner,
       githubRepo,
       targetFilePath,
-      content,
+      contentToUse, // Use the modified content
       finalCommitMessage,
       headBranch!, // headBranch is guaranteed to be set here
       existingFileSha, // Pass SHA for updates
