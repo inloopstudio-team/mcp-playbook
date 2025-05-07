@@ -97,7 +97,8 @@ export async function handleSearchRunbook(
 
     return {
       results: processedResults,
-      message: `Found and processed ${processedResults.length} results.`,
+      total_count: searchResults.total_count,
+      message: `Found and processed ${processedResults.length} results out of ${searchResults.total_count} total.`,
     };
   } catch (e: any) {
     console.error(`Error during runbook search: ${e.message}`);

@@ -12,7 +12,7 @@ A Model Context Protocol (MCP) server for managing project documentation and sav
 | `create_adr`                | Creates or overwrites a new Architectural Decision Record (ADR) file in the docs/adr/ directory of the target project. ADR files will be named following an `adr-name.md` convention with sequence numbering.                                 |
 | `create_changelog`          | Creates a new, detailed, and user-facing changelog entry file in the docs/changelog/ directory of the target project. Each changelog entry will be a separate file named following a `changelog-entry.md` convention with sequence numbering. |
 | `save_and_upload_chat_log`  | Captures the current conversation history, saves it as a markdown file in the .chat/ directory of the target project, and uploads it to the dwarvesf/prompt-log GitHub repository. Requires a user ID for organization.                       |
-| `search_runbook`            | Fuzzy search for keywords in the `dwarvesf/runbook` GitHub repository and return the top 5 matching files with their full content.                                                                                                            |
+| `search_runbook`            | Fuzzy search for keywords in the `dwarvesf/runbook` GitHub repository. If keyword has spaces, searches exact phrase OR individual words. Returns top 5 matches with full content & total count.                                               |
 | `suggest_runbook`           | Creates or updates a Pull Request in the dwarvesf/runbook repository with a new runbook entry.                                                                                                                                                |
 | `sync_prompt`               | Syncs an LLM prompt to the dwarvesf/prompt-db GitHub repository.                                                                                                                                                                              |
 | `think`                     | Use the tool to think about something. It will not obtain new information or make any changes to the repository, but just log the thought. Use it when complex reasoning or brainstorming is needed.                                          |
@@ -167,7 +167,7 @@ A JSON object indicating success or failure, including the local path, GitHub pa
 
 ### `search_runbook`
 
-Fuzzy search for keywords in the `dwarvesf/runbook` GitHub repository and return the top 5 matching files with their full content. Includes an in-memory cache to avoid repeated GitHub API calls for the same query while the server is active.
+Fuzzy search for keywords in the `dwarvesf/runbook` GitHub repository. If the keyword contains spaces, it searches for the exact phrase OR the individual words. It returns the top 5 matching files with their full content and the total number of matches found by GitHub. Includes an in-memory cache to avoid repeated GitHub API calls for the same query while the server is active.
 
 **Parameters:**
 
@@ -186,7 +186,8 @@ A JSON object containing the search results.
       "url": "string" // The URL to the file on GitHub
     }
   ],
-  "message": "string" // A message describing the result of the search
+  "total_count": "number", // The total number of results found by GitHub's search
+  "message": "string" // A message describing the result of the search, e.g., "Found and processed 5 results out of 10 total."
 }
 ```
 

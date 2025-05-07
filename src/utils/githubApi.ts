@@ -266,8 +266,16 @@ export async function searchCode(
   }
 
   try {
+    let searchQuery = query;
+    if (query.includes(" ")) {
+      // If the query has spaces, search for the exact phrase OR the individual words
+      // GitHub's default for space-separated terms is AND, so `query` itself covers the "individual words" part.
+      // We add the exact phrase search with quotes.
+      searchQuery = `"${query}" OR ${query}`;
+    }
+
     const response = await octokit.rest.search.code({
-      q: `${query} repo:${owner}/${repo}`,
+      q: `${searchQuery} repo:${owner}/${repo}`,
       // GitHub Search API requires a specific Accept header for text matches
       headers: {
         Accept: "application/vnd.github.text-match+json",
