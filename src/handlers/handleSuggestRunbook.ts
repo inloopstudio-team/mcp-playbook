@@ -26,12 +26,12 @@ export async function handleSuggestRunbook(
     // Get authenticated user and inject into frontmatter
     const user = await githubApi.getMe();
     const username = user.login;
-    console.log(`Authenticated user: ${username}`);
+    console.error(`Authenticated user: ${username}`);
 
     // Inject the authenticated user into the frontmatter using the utility function
     const contentToUse = injectAuthorIntoFrontmatter(content, username);
 
-    console.log(`Handling suggest_runbook for folder: ${target_folder}`);
+    console.error(`Handling suggest_runbook for folder: ${target_folder}`);
 
     const githubOwner = "dwarvesf";
     const githubRepo = "runbook";
@@ -73,7 +73,7 @@ export async function handleSuggestRunbook(
         headBranch = `suggest-runbook-${Date.now()}`;
       }
       // 5. Create the new branch
-      console.log(`Creating new branch: ${headBranch}`);
+      console.error(`Creating new branch: ${headBranch}`);
       await githubApi.createBranch(
         githubOwner,
         githubRepo,
@@ -82,7 +82,7 @@ export async function handleSuggestRunbook(
       );
     } else {
       // If updating existing PR, get the head branch from the PR
-      console.log(`Fetching PR ${pr_number} to get head branch`);
+      console.error(`Fetching PR ${pr_number} to get head branch`);
       const pr = await githubApi.getPullRequest(
         githubOwner,
         githubRepo,
@@ -91,7 +91,7 @@ export async function handleSuggestRunbook(
       headBranch = pr.head.ref;
 
       // 6. Fetch existing file SHA if updating
-      console.log(
+      console.error(
         `Fetching existing file content for ${targetFilePath} on branch ${headBranch}`,
       );
       try {
@@ -106,11 +106,11 @@ export async function handleSuggestRunbook(
           existingContent.type === "file"
         ) {
           existingFileSha = existingContent.sha;
-          console.log(`Found existing file with SHA: ${existingFileSha}`);
+          console.error(`Found existing file with SHA: ${existingFileSha}`);
         }
       } catch (e: any) {
         if (e instanceof RequestError && e.status === 404) {
-          console.log(
+          console.error(
             `File not found at ${targetFilePath} on branch ${headBranch}. This is expected for a new file.`,
           );
         } else {
@@ -122,7 +122,7 @@ export async function handleSuggestRunbook(
     // 7. Use createOrUpdateFileInRepo to push the content
     const finalCommitMessage =
       commit_message || `Add/update runbook entry: ${finalFilenameSlug}`;
-    console.log(
+    console.error(
       `Creating/updating file ${targetFilePath} on branch ${headBranch}`,
     );
     await githubApi.createOrUpdateFileInRepo(
@@ -134,7 +134,7 @@ export async function handleSuggestRunbook(
       headBranch!, // headBranch is guaranteed to be set here
       existingFileSha, // Pass SHA for updates
     );
-    console.log(`File ${targetFilePath} successfully created/updated.`);
+    console.error(`File ${targetFilePath} successfully created/updated.`);
 
     let finalPrNumber = pr_number;
     let finalPrUrl: string | undefined;
@@ -149,7 +149,7 @@ This entry was suggested by an AI to document a technical pattern or procedure t
 
 Please review the suggested content and merge if appropriate.`;
       const finalPrBody = pr_body || defaultPrBody;
-      console.log(`Creating new PR from ${headBranch} to ${baseBranch}`);
+      console.error(`Creating new PR from ${headBranch} to ${baseBranch}`);
       const newPr = await githubApi.createPullRequest(
         githubOwner,
         githubRepo,
@@ -162,11 +162,11 @@ Please review the suggested content and merge if appropriate.`;
       );
       finalPrNumber = newPr.number;
       finalPrUrl = newPr.html_url;
-      console.log(`New PR created: ${finalPrUrl}`);
+      console.error(`New PR created: ${finalPrUrl}`);
     } else {
       // If updating existing PR, construct the URL
       finalPrUrl = `https://github.com/${githubOwner}/${githubRepo}/pull/${pr_number}`;
-      console.log(`Updated existing PR: ${finalPrUrl}`);
+      console.error(`Updated existing PR: ${finalPrUrl}`);
     }
 
     // 9. Return status and PR details

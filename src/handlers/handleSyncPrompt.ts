@@ -18,7 +18,7 @@ export async function handleSyncPrompt(
       promptContent,
     } = validateArgs(SyncPromptArgsSchema, args);
 
-    console.log(`Handling sync_prompt for project: ${projectName}, prompt: ${promptName}`);
+    console.error(`Handling sync_prompt for project: ${projectName}, prompt: ${promptName}`);
 
     const githubOwner = "dwarvesf";
     const githubRepo = "prompt-db";
@@ -46,11 +46,11 @@ export async function handleSyncPrompt(
         existingContent.type === "file"
       ) {
         existingFileSha = existingContent.sha;
-        console.log(`Found existing file with SHA: ${existingFileSha}`);
+        console.error(`Found existing file with SHA: ${existingFileSha}`);
       }
     } catch (e: any) {
       if (e instanceof RequestError && e.status === 404) {
-        console.log(
+        console.error(
           `File not found at ${targetFilePath} on branch ${baseBranch}. This is expected for a new file.`,
         );
       } else {
@@ -125,7 +125,7 @@ export async function handleSyncPrompt(
 
     const githubFileUrl = `https://github.com/${githubOwner}/${githubRepo}/blob/${baseBranch}/${targetFilePath}`;
 
-    console.log(`Prompt synced successfully to ${githubFileUrl}`);
+    console.error(`Prompt synced successfully to ${githubFileUrl}`);
 
     return {
       status: "success",

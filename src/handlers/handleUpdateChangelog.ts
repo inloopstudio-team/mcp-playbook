@@ -16,7 +16,7 @@ export async function handleUpdateChangelog(
     );
 
     const absoluteTargetProjectDir = path.resolve(target_project_dir);
-    console.log(`Handling create_changelog for: ${absoluteTargetProjectDir}`);
+    console.error(`Handling create_changelog for: ${absoluteTargetProjectDir}`);
     const changelogDir = fsUtils.joinProjectPath(
       absoluteTargetProjectDir,
       "docs",

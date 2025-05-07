@@ -11,7 +11,7 @@ export async function handleCreateSpec(args: CreateSpecArgs): Promise<any> {
     );
 
     const absoluteTargetProjectDir = path.resolve(target_project_dir);
-    console.log(
+    console.error(
       `Handling create_spec for: ${absoluteTargetProjectDir}, spec: ${spec_name}`,
     );
     const specsDir = fsUtils.joinProjectPath(

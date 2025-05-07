@@ -16,7 +16,7 @@ export async function handleInitializeDocsStructure(
     );
 
     const absoluteTargetProjectDir = path.resolve(target_project_dir);
-    console.log(
+    console.error(
       `Handling initialize_docs_structure for: ${absoluteTargetProjectDir}`,
     );
     // Use fsUtils to create directories

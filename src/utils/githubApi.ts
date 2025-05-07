@@ -27,7 +27,7 @@ export async function getContents(
   filePath: string, // This is the path WITHIN the GitHub repo
   branch: string = "main", // Default branch
 ): Promise<GitHubContentsResponse> {
-  console.log(
+  console.error(
     `Attempting to get contents from GitHub: ${owner}/${repo}/${filePath} on branch ${branch}`,
   );
 
@@ -45,7 +45,7 @@ export async function getContents(
     return response.data as GitHubContentsResponse;
   } catch (e: any) {
     if (e instanceof RequestError && e.status === 404) {
-      console.log(`Content not found at ${filePath}. Returning empty.`);
+      console.error(`Content not found at ${filePath}. Returning empty.`);
       return [] as GitHubContentsResponse; // Return empty array for consistency when listing directory contents
     }
     console.error(`GitHub API GET request error for ${filePath}: ${e.message}`);
@@ -62,7 +62,7 @@ export async function getRef(
 ): Promise<
   GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.git.getRef>
 > {
-  console.log(`Attempting to get ref from GitHub: ${owner}/${repo}/${ref}`);
+  console.error(`Attempting to get ref from GitHub: ${owner}/${repo}/${ref}`);
 
   try {
     const response = await octokit.rest.git.getRef({
@@ -84,7 +84,7 @@ export async function getCommit(
 ): Promise<
   GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.git.getCommit>
 > {
-  console.log(
+  console.error(
     `Attempting to get commit from GitHub: ${owner}/${repo}/${commitSha}`,
   );
 
@@ -108,7 +108,7 @@ export async function getTree(
 ): Promise<
   GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.git.getTree>
 > {
-  console.log(
+  console.error(
     `Attempting to get tree from GitHub: ${owner}/${repo}/${treeSha}`,
   );
 
@@ -133,7 +133,7 @@ export async function createBlob(
 ): Promise<
   GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.git.createBlob>
 > {
-  console.log(`Attempting to create blob in GitHub: ${owner}/${repo}`);
+  console.error(`Attempting to create blob in GitHub: ${owner}/${repo}`);
 
   const payload = {
     content: content,
@@ -164,7 +164,7 @@ export async function createTree(
 ): Promise<
   GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.git.createTree>
 > {
-  console.log(`Attempting to create tree in GitHub: ${owner}/${repo}`);
+  console.error(`Attempting to create tree in GitHub: ${owner}/${repo}`);
 
   const payload: any = {
     tree: treeItems,
@@ -195,7 +195,7 @@ export async function createCommit(
 ): Promise<
   GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.git.createCommit>
 > {
-  console.log(`Attempting to create commit in GitHub: ${owner}/${repo}`);
+  console.error(`Attempting to create commit in GitHub: ${owner}/${repo}`);
 
   const payload = {
     message: message,
@@ -225,7 +225,7 @@ export async function updateRef(
 ): Promise<
   GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.git.updateRef>
 > {
-  console.log(`Attempting to update ref in GitHub: ${owner}/${repo}/${ref}`);
+  console.error(`Attempting to update ref in GitHub: ${owner}/${repo}/${ref}`);
 
   const payload = {
     sha: commitSha,
@@ -253,7 +253,7 @@ export async function searchCode(
 ): Promise<
   GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.search.code>
 > {
-  console.log(
+  console.error(
     `Attempting to search code in GitHub: ${owner}/${repo} with query "${query}"`,
   );
 
@@ -261,7 +261,7 @@ export async function searchCode(
   const cachedResult = searchCache.get(cacheKey);
 
   if (cachedResult && Date.now() - cachedResult.timestamp < CACHE_TTL) {
-    console.log(`Returning cached search result for ${cacheKey}`);
+    console.error(`Returning cached search result for ${cacheKey}`);
     return cachedResult.data;
   }
 
@@ -296,7 +296,7 @@ export async function createBranch(
 ): Promise<
   GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.git.createRef>
 > {
-  console.log(
+  console.error(
     `Attempting to create branch ${branch} from ${fromBranch} in ${owner}/${repo}`,
   );
   try {
@@ -330,7 +330,7 @@ export async function getPullRequest(
 ): Promise<
   GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.pulls.get>
 > {
-  console.log(`Attempting to get PR ${pullNumber} from ${owner}/${repo}`);
+  console.error(`Attempting to get PR ${pullNumber} from ${owner}/${repo}`);
   try {
     const response = await octokit.rest.pulls.get({
       owner,
@@ -357,7 +357,7 @@ export async function createPullRequest(
 ): Promise<
   GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.pulls.create>
 > {
-  console.log(
+  console.error(
     `Attempting to create PR in ${owner}/${repo} from ${head} to ${base}`,
   );
   try {
@@ -384,7 +384,7 @@ export async function getMe(): Promise<
     typeof octokit.rest.users.getAuthenticated
   >
 > {
-  console.log("Attempting to get authenticated GitHub user");
+  console.error("Attempting to get authenticated GitHub user");
   try {
     const response = await octokit.rest.users.getAuthenticated();
     return response.data;
@@ -416,7 +416,7 @@ export async function createOrUpdateFileInRepo(
   >
 > {
   // Changed return type to any as it's not used by the new sync logic
-  console.log(
+  console.error(
     `Attempting to create/update file in GitHub: ${owner}/${repo}/${filePath} on branch ${branch}`,
   );
 
@@ -437,12 +437,12 @@ export async function createOrUpdateFileInRepo(
     const response: any =
       await octokit.rest.repos.createOrUpdateFileContents(payload);
 
-    console.log(`GitHub API response status: ${response.status}`);
+    console.error(`GitHub API response status: ${response.status}`);
 
     if (response.status === 201) {
-      console.log(`Successfully created file in GitHub: ${filePath}`);
+      console.error(`Successfully created file in GitHub: ${filePath}`);
     } else if (response.status === 200) {
-      console.log(`Successfully updated file in GitHub: ${filePath}`);
+      console.error(`Successfully updated file in GitHub: ${filePath}`);
     } else {
       console.warn(
         `Unexpected successful GitHub API status code: ${response.status} for ${filePath}`,

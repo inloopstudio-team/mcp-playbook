@@ -11,7 +11,7 @@ export async function handleCreateAdr(args: CreateAdrArgs): Promise<any> {
     );
 
     const absoluteTargetProjectDir = path.resolve(target_project_dir);
-    console.log(
+    console.error(
       `Handling create_adr for: ${absoluteTargetProjectDir}, adr: ${adr_name}`,
     );
     const adrDir = fsUtils.joinProjectPath(

@@ -1,5 +1,5 @@
 export async function handleListPrompts(): Promise<any> {
-  console.log("Handling prompts/list");
+  console.error("Handling prompts/list");
 
   const prompts = [
     {

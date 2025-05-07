@@ -7,7 +7,7 @@ import { validateArgs } from "../utils/validationUtils.js";
 export async function handleThinkTool(
   args: Record<string, unknown>,
 ): Promise<string> {
-  console.log("Handling think tool with args:", args);
+  console.error("Handling think tool with args:", args);
   try {
     const validatedArgs = validateArgs(ThinkToolArgsSchema, args);
     const thought = validatedArgs.thought;

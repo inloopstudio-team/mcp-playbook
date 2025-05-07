@@ -14,7 +14,7 @@ export type GetPromptArgs = z.infer<typeof GetPromptArgsSchema>;
 export async function handleGetPrompt(request: any): Promise<any> {
   try {
     const { params } = validateArgs(GetPromptArgsSchema, request);
-    console.log("Handling prompts/get", params.name);
+    console.error("Handling prompts/get", params.name);
 
     if (params.name === "init-playbook") {
       return {

@@ -39,7 +39,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 async function main() {
-  console.log("Starting MCP Playbook Server...");
+  console.error("Starting MCP Playbook Server...");
   const server = new Server(
     {
       name: "MCP Playbook Server",
@@ -56,7 +56,7 @@ async function main() {
   server.setRequestHandler(
     CallToolRequestSchema,
     async (request: CallToolRequest) => {
-      console.log("Received CallToolRequest:", request);
+      console.error("Received CallToolRequest:", request);
       try {
         if (!request.params.arguments) {
           throw new Error("No arguments provided");
@@ -136,7 +136,7 @@ async function main() {
   );
 
   server.setRequestHandler(ListToolsRequestSchema, async () => {
-    console.log("Received ListToolsRequest, returning definitions.");
+    console.error("Received ListToolsRequest, returning definitions.");
     return {
       tools: toolDefinitions,
     };
@@ -146,10 +146,10 @@ async function main() {
   server.setRequestHandler(GetPromptRequestSchema, handleGetPrompt);
 
   const transport = new StdioServerTransport();
-  console.log("Connecting server to transport...");
+  console.error("Connecting server to transport...");
   await server.connect(transport);
 
-  console.log("MCP Playbook Server running on stdio");
+  console.error("MCP Playbook Server running on stdio");
 }
 
 main().catch((error) => {

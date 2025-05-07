@@ -50,7 +50,7 @@ export async function handleSaveAndUploadChatLog(
     const user = await githubApi.getMe();
     const userId = user.login; // Use login as the user identifier
 
-    console.log(
+    console.error(
       `Handling save_and_upload_chat_log for: ${absoluteTargetProjectDir}, user: ${userId}`,
     );
     const githubOwner = "dwarvesf";
@@ -127,14 +127,14 @@ export async function handleSaveAndUploadChatLog(
       const fileContent = fsUtils.readFile(localFilePath);
 
       // Create a new blob for the file content
-      console.log(`Creating blob for ${filename}...`);
+      console.error(`Creating blob for ${filename}...`);
       const blob = await githubApi.createBlob(
         githubOwner,
         githubRepo,
         fileContent,
         "utf-8",
       );
-      console.log(`Blob created with SHA: ${blob.sha}`);
+      console.error(`Blob created with SHA: ${blob.sha}`);
 
       // Add the new/updated file to the tree items
       const remoteFilePath = path.posix.join(remoteChatDir, filename);
@@ -147,7 +147,7 @@ export async function handleSaveAndUploadChatLog(
     }
 
     // 4. Create a new tree object
-    console.log("Creating new tree...");
+    console.error("Creating new tree...");
     // Pass the baseTreeSha to create the new tree based on the latest commit's tree
     const newTree = await githubApi.createTree(
       githubOwner,
@@ -155,11 +155,11 @@ export async function handleSaveAndUploadChatLog(
       newTreeItems,
       baseTreeSha,
     );
-    console.log(`New tree created with SHA: ${newTree.sha}`);
+    console.error(`New tree created with SHA: ${newTree.sha}`);
 
     // 5. Create a new commit object
     const commitMessage = `sync: merge chat logs from ${projectName} for ${userId}`;
-    console.log(`Creating new commit: "${commitMessage}"`);
+    console.error(`Creating new commit: "${commitMessage}"`);
     const newCommit = await githubApi.createCommit(
       githubOwner,
       githubRepo,
@@ -167,12 +167,12 @@ export async function handleSaveAndUploadChatLog(
       newTree.sha,
       latestCommitSha,
     );
-    console.log(`New commit created with SHA: ${newCommit.html_url}`);
+    console.error(`New commit created with SHA: ${newCommit.html_url}`);
 
     // 6. Update the branch reference to point to the new commit
-    console.log(`Updating branch "${githubBranch}" to commit ${newCommit.sha}`);
+    console.error(`Updating branch "${githubBranch}" to commit ${newCommit.sha}`);
     await githubApi.updateRef(githubOwner, githubRepo, ref, newCommit.sha);
-    console.log(`Branch "${githubBranch}" updated successfully.`);
+    console.error(`Branch "${githubBranch}" updated successfully.`);
 
     // Return success response
     return {

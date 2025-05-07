@@ -11,7 +11,7 @@ export async function handleSearchRunbook(
   try {
     const { keyword } = validateArgs(SearchRunbookArgsSchema, args);
 
-    console.log(`Handling search_runbook for keyword: ${keyword}`);
+    console.error(`Handling search_runbook for keyword: ${keyword}`);
 
     const githubOwner = "dwarvesf";
     const githubRepo = "runbook";
