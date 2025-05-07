@@ -310,7 +310,7 @@ A `Dockerfile` is included in the plan but not fully implemented here. Once comp
     ```
 2.  Run the container, ensuring the `GITHUB_PERSONAL_ACCESS_TOKEN` environment variable is passed:
     ```bash
-    docker run -e GITHUB_PERSONAL_ACCESS_TOKEN="your_token" mcp-playbook
+    docker run --pull=always -e GITHUB_PERSONAL_ACCESS_TOKEN="your_token" mcp-playbook
     ```
 
 ## Configuration
@@ -356,6 +356,7 @@ Example configuration for running with Docker:
         "run",
         "-i",
         "--rm",
+        "--pull=always",
         "-e",
         "GITHUB_PERSONAL_ACCESS_TOKEN",
         "ghcr.io/dwarvesf/mcp-playbook:latest"
