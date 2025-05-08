@@ -62,7 +62,7 @@ export async function handleSaveAndUploadChatLog(
     const projectName = githubApi.deriveProjectNameFromPath(
       absoluteTargetProjectDir,
     );
-    const remoteChatDir = path.posix.join(projectName, userId, ".chat");
+    const remoteChatDir = path.posix.join("project-logs", projectName, userId, ".chat");
 
     // Ensure the local .chat directory exists in the target project
     const localChatDir = fsUtils.joinProjectPath(
