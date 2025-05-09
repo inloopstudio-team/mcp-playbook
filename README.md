@@ -44,32 +44,45 @@ The MCP Playbook server operates by receiving tool call requests from an MCP cli
 
 ```mermaid
 graph LR
-    A[MCP Client] --> B["CallToolRequestSchema [src/index.ts]"];
-    B --> C["Switch Case (toolName) [src/index.ts]"];
+    A[MCP Client] --> B["CallToolRequestSchema"];
+    A --> E["ListToolsRequestSchema"];
+    A --> F["ListPromptsRequestSchema"];
+    A --> G["GetPromptRequestSchema"];
+
+    subgraph src/index.ts
+        B
+        E
+        F
+        G
+    end
+
+    B --> C["Switch Case (toolName)"];
 
     subgraph src/tools/
-        C1
-        C2
-        C3
-        C4
+        C --> C1("init_playbook");
+        C --> C2("create_adr");
+        C --> C3("search_runbook");
+        C --> C4("... ... ...");
     end
+
+    C1 --> D1("handleInitPlaybook");
+    C2 --> D2("handleCreateAdr");
+    C3 --> D3("handleSearchRunbook");
+    C4 --> D4("... ... ...");
+
+    E --> D12("toolDefinitions");
+    F --> D13("handleListPrompts");
+    G --> D14("handleGetPrompt");
 
     subgraph src/handlers/
         D1
         D2
         D3
         D4
+        D12
+        D13
+        D14
     end
-
-    C --> C1("initPlaybook");
-    C --> C2("createAdr");
-    C --> C3("searchRunbook");
-    C --> C4("... ... ...");
-
-    C1 --> D1("handleInitPlaybook");
-    C2 --> D2("handleCreateAdr");
-    C3 --> D3("handleSearchRunbook");
-    C4 --> D4("... ... ...");
 ```
 
 1.  **Tool Call Request:** An MCP client sends a `CallToolRequest` to the server, specifying the `toolName` and any necessary `arguments`.
