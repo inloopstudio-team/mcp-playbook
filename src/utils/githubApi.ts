@@ -271,6 +271,7 @@ export async function searchCode(
   owner: string,
   repo: string,
   query: string,
+  additionalQualifiers: string[] = ["in:file,path"],
 ): Promise<
   GetResponseDataTypeFromEndpointMethod<typeof octokit.rest.search.code>
 > {
@@ -278,7 +279,7 @@ export async function searchCode(
     `Attempting to search code in GitHub: ${owner}/${repo} with query "${query}"`,
   );
 
-  const cacheKey = `${owner}/${repo}:${query}`;
+  const cacheKey = `${owner}/${repo}:${query}`; // Consider updating cache key to include qualifiers if needed
   const cachedResult = searchCache.get(cacheKey);
 
   if (cachedResult && Date.now() - cachedResult.timestamp < CACHE_TTL) {
@@ -287,7 +288,10 @@ export async function searchCode(
   }
 
   try {
-    let searchQuery = `${query} in:file,path`;
+    let searchQuery = `${query}`;
+    if (additionalQualifiers && additionalQualifiers.length > 0) {
+      searchQuery += ` ${additionalQualifiers.join(' ')}`;
+    }
 
     console.error(`Using search query: ${searchQuery}`);
 

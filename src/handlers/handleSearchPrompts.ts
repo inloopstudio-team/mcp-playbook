@@ -20,11 +20,16 @@ export async function handleSearchPrompts(
     // The searchCode function in githubApi.ts already adds `repo:${owner}/${repo}`
     // We need to provide the keyword and exclude the 'synced_prompts/' folder.
     const constructedQuery = `${keyword}`;
+    const additionalQualifiers = [
+      "in:file,path",
+      "-path:synced_prompts"
+    ]
 
     const searchResults = await githubApi.searchCode(
       githubOwner,
       githubRepo,
       constructedQuery,
+      additionalQualifiers,
     );
 
     // Limit to top 5 results, similar to handleSearchRunbook
