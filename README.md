@@ -2,6 +2,84 @@
 
 A Model Context Protocol (MCP) server for managing project documentation and saving conversation logs within a user-specified target project directory.
 
+## Usage with Claude Desktop or MCP clients
+
+To use this MCP server with Claude Desktop, you would add a configuration entry to your Claude Desktop settings. The exact `command` and `args` will depend on how you choose to run the server (e.g., directly via `node` or using Docker).
+
+First, ensure that you add this prompt to your cursor rules, cline rules, or windsurf rules:
+
+```
+ALWAYS run the `init_playbook` tool before starting to get instructions on how things should be done and documented.
+```
+
+Then, add the following configuration to your MCP client:
+
+```json
+{
+  "mcpServers": {
+    "mcp-playbook": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "--pull=always",
+        "-e",
+        "GITHUB_PERSONAL_ACCESS_TOKEN",
+        "ghcr.io/dwarvesf/mcp-playbook:latest"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "your_github_token_here"
+      }
+    }
+  }
+}
+```
+
+Consult the Claude Desktop documentation for detailed instructions on configuring MCP servers.
+
+## How the MCP works behind the scenes
+
+The MCP Playbook server operates by receiving tool call requests from an MCP client (like Claude Desktop). These requests are processed in the `src/index.ts` file, which acts as the server's entry point.
+
+```mermaid
+graph LR
+    A[MCP Client] --> B["CallToolRequestSchema [src/index.ts]"];
+    B --> C["Switch Case (toolName) [src/index.ts]"];
+
+    subgraph src/tools/
+        C1
+        C2
+        C3
+        C4
+    end
+
+    subgraph src/handlers/
+        D1
+        D2
+        D3
+        D4
+    end
+
+    C --> C1("initPlaybook");
+    C --> C2("createAdr");
+    C --> C3("searchRunbook");
+    C --> C4("... ... ...");
+
+    C1 --> D1("handleInitPlaybook");
+    C2 --> D2("handleCreateAdr");
+    C3 --> D3("handleSearchRunbook");
+    C4 --> D4("... ... ...");
+```
+
+1.  **Tool Call Request:** An MCP client sends a `CallToolRequest` to the server, specifying the `toolName` and any necessary `arguments`.
+2.  **Request Handling:** The `src/index.ts` file has a request handler set up for `CallToolRequest` using `server.setRequestHandler(CallToolRequestSchema, async (request: CallToolRequest) => { ... })`.
+3.  **Tool Routing (Switch Case):** Inside the request handler, a `switch` statement on the `toolName` routes the request to the appropriate handler function.
+4.  **Handler Execution:** Each case in the `switch` statement calls a dedicated handler function (e.g., `handleCreateSpec`, `handleSearchRunbook`, `handleSyncPrompt`) located in the `src/handlers.ts` file. These handlers contain the specific logic for each tool.
+5.  **Result:** The handler function performs the requested action and returns a result. This result is then sent back to the MCP client.
+
+This flow ensures that each tool call is directed to the correct logic for execution, allowing the server to perform various documentation and utility tasks.
+
 ## Available Tools
 
 | Tool Name                   | Description                                                                                                                                                                                                                                   |
@@ -341,7 +419,7 @@ A `Dockerfile` is included in the plan but not fully implemented here. Once comp
     docker run --pull=always -e GITHUB_PERSONAL_ACCESS_TOKEN="your_token" mcp-playbook
     ```
 
-## Configuration
+## Configuration and testing
 
 The `save_and_upload_chat_log` tool requires a GitHub Personal Access Token with `repo` scope to upload files to `dwarvesf/prompt-log`. This token must be provided via the `GITHUB_PERSONAL_ACCESS_TOKEN` environment variable.
 
@@ -353,11 +431,9 @@ GITHUB_PERSONAL_ACCESS_TOKEN=your_github_token_here
 
 Ensure `.env` is added to your `.gitignore` file.
 
-## Usage with Claude Desktop or MCP clients
+### Testing
 
-To use this MCP server with Claude Desktop, you would add a configuration entry to your Claude Desktop settings. The exact `command` and `args` will depend on how you choose to run the server (e.g., directly via `node` or using Docker).
-
-Example configuration for running directly:
+Run `npm run build` and update your MCP config to direct it to the output `index.js` file.
 
 ```json
 {
@@ -372,38 +448,6 @@ Example configuration for running directly:
   }
 }
 ```
-
-Example configuration for running with Docker:
-
-```json
-{
-  "mcpServers": {
-    "mcp-playbook": {
-      "command": "docker",
-      "args": [
-        "run",
-        "-i",
-        "--rm",
-        "--pull=always",
-        "-e",
-        "GITHUB_PERSONAL_ACCESS_TOKEN",
-        "ghcr.io/dwarvesf/mcp-playbook:latest"
-      ],
-      "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "your_github_token_here"
-      }
-    }
-  }
-}
-```
-
-Then add this prompt to your cursor rules, cline rules, or windsurf rules:
-
-```
-ALWAYS run the `init_playbook` tool before starting to get instructions on how things should be done and documented.
-```
-
-Consult the Claude Desktop documentation for detailed instructions on configuring MCP servers.
 
 ## Usage Example
 
