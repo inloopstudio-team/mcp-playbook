@@ -7,6 +7,7 @@ Key Capabilities:
 - Append new file entries to the changelog in docs/changelog/ (\`create_changelog\`).
 - Save and upload conversation logs in the .chat/ folder to a designated GitHub repository (\`save_and_upload_chat_log\`).
 - Search the runbook repository for relevant information (\`search_runbook\`).
+- Search the prompt-db repository for relevant prompts (\`search_prompts\`). (Excludes the synced_prompts/ folder)
 - Suggest new runbook entries by creating or updating Pull Requests (\`suggest_runbook\`).
 - Sync LLM prompts found in project files to a designated GitHub repository (\`sync_prompt\`).
 

@@ -10,7 +10,9 @@ import * as path from "path";
 
 // In-memory cache for search results
 const searchCache = new Map<string, any>();
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+// In-memory cache for getContents results
+const getContentsCache = new Map<string, any>();
+const CACHE_TTL = 15 * 60 * 1000 * 1000; // 15 minutes
 
 const octokit = new Octokit({
   auth: process.env.GITHUB_PERSONAL_ACCESS_TOKEN,
@@ -27,6 +29,14 @@ export async function getContents(
   filePath: string, // This is the path WITHIN the GitHub repo
   branch: string = "main", // Default branch
 ): Promise<GitHubContentsResponse> {
+  const cacheKey = `${owner}/${repo}/${filePath}@${branch}`;
+  const cachedResult = getContentsCache.get(cacheKey);
+
+  if (cachedResult && Date.now() - cachedResult.timestamp < CACHE_TTL) {
+    console.error(`Returning cached getContents result for ${cacheKey}`);
+    return cachedResult.data;
+  }
+
   console.error(
     `Attempting to get contents from GitHub: ${owner}/${repo}/${filePath} on branch ${branch}`,
   );
@@ -39,6 +49,12 @@ export async function getContents(
       ref: branch,
     });
 
+    // Store the result in cache with a timestamp
+    getContentsCache.set(cacheKey, {
+      data: response.data,
+      timestamp: Date.now(),
+    });
+
     // The response data structure depends on whether filePath is a file or a directory.
     // Octokit's type definition for getContent is a bit complex, so we'll cast for now.
     // We also need to handle the case where the content is not found (404), which Octokit throws as an error.
@@ -46,6 +62,11 @@ export async function getContents(
   } catch (e: any) {
     if (e instanceof RequestError && e.status === 404) {
       console.error(`Content not found at ${filePath}. Returning empty.`);
+      // Cache the 404 result as an empty array
+      getContentsCache.set(cacheKey, {
+        data: [] as GitHubContentsResponse,
+        timestamp: Date.now(),
+      });
       return [] as GitHubContentsResponse; // Return empty array for consistency when listing directory contents
     }
     console.error(`GitHub API GET request error for ${filePath}: ${e.message}`);
@@ -259,6 +280,7 @@ export async function searchCode(
 
   const cacheKey = `${owner}/${repo}:${query}`;
   const cachedResult = searchCache.get(cacheKey);
+  console.error({cachedResult})
 
   if (cachedResult && Date.now() - cachedResult.timestamp < CACHE_TTL) {
     console.error(`Returning cached search result for ${cacheKey}`);
@@ -266,16 +288,12 @@ export async function searchCode(
   }
 
   try {
-    let searchQuery = query;
-    if (query.includes(" ")) {
-      // If the query has spaces, search for the exact phrase OR the individual words
-      // GitHub's default for space-separated terms is AND, so `query` itself covers the "individual words" part.
-      // We add the exact phrase search with quotes.
-      searchQuery = `"${query}" OR ${query}`;
-    }
+    let searchQuery = `${query} in:file,path`;
+
+    console.error(`Using search query: ${searchQuery}`);
 
     const response = await octokit.rest.search.code({
-      q: `${searchQuery} repo:${owner}/${repo}`,
+      q: `repo:${owner}/${repo} ${searchQuery}`,
       // GitHub Search API requires a specific Accept header for text matches
       headers: {
         Accept: "application/vnd.github.text-match+json",

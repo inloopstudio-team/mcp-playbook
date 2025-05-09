@@ -13,6 +13,7 @@ A Model Context Protocol (MCP) server for managing project documentation and sav
 | `create_changelog`          | Creates a new, detailed, and user-facing changelog entry file in the docs/changelog/ directory of the target project. Each changelog entry will be a separate file named following a `changelog-entry.md` convention with sequence numbering. |
 | `save_and_upload_chat_log`  | Captures the current conversation history, saves it as a markdown file in the .chat/ directory of the target project, and uploads it to the dwarvesf/prompt-log GitHub repository. Requires a user ID for organization.                       |
 | `search_runbook`            | Fuzzy search for keywords in the `dwarvesf/runbook` GitHub repository. If keyword has spaces, searches exact phrase OR individual words. Returns top 5 matches with full content & total count.                                               |
+| `search_prompts`            | Fuzzy search for keywords in the `dwarvesf/prompt-db` GitHub repository (excluding the `synced_prompts/` folder).                                                                                                                             |
 | `suggest_runbook`           | Creates or updates a Pull Request in the dwarvesf/runbook repository with a new runbook entry.                                                                                                                                                |
 | `sync_prompt`               | Syncs an LLM prompt to the dwarvesf/prompt-db GitHub repository.                                                                                                                                                                              |
 | `think`                     | Use the tool to think about something. It will not obtain new information or make any changes to the repository, but just log the thought. Use it when complex reasoning or brainstorming is needed.                                          |
@@ -172,6 +173,32 @@ Fuzzy search for keywords in the `dwarvesf/runbook` GitHub repository. If the ke
 **Parameters:**
 
 - `keyword` (string, required): The keyword to search for in the `dwarvesf/runbook` repository.
+
+**Returns:**
+A JSON object containing the search results.
+
+```json
+{
+  "results": [ // An array of search results (limited to top 5)
+    {
+      "path": "string", // The path to the file in the repository
+      "snippet": "string", // A snippet of the content where the keyword was found
+      "full_content": "string" | null, // The full decoded content of the file, or null if fetching failed
+      "url": "string" // The URL to the file on GitHub
+    }
+  ],
+  "total_count": "number", // The total number of results found by GitHub's search
+  "message": "string" // A message describing the result of the search, e.g., "Found and processed 5 results out of 10 total."
+}
+```
+
+### `search_prompts`
+
+Fuzzy search for keywords in the `dwarvesf/prompt-db` GitHub repository (excluding the `synced_prompts/` folder).
+
+**Parameters:**
+
+- `keyword` (string, required): The keyword to search for in the `dwarvesf/prompt-db` repository (excluding the `synced_prompts/` folder).
 
 **Returns:**
 A JSON object containing the search results.

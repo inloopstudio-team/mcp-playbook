@@ -7,6 +7,7 @@ import { initPlaybookTool } from "./initPlaybook.js";
 import { initializeDocsStructureTool } from "./initializeDocsStructure.js";
 import { saveAndUploadChatLogTool } from "./saveAndUploadChatLog.js";
 import { searchRunbookTool } from "./searchRunbook.js";
+import { searchPromptsTool } from "./searchPrompts.js";
 import { suggestRunbookTool } from "./suggestRunbook.js";
 import { syncPromptTool } from "./syncPrompt.js";
 import { thinkTool } from "./thinkTool.js";
@@ -20,6 +21,7 @@ export const toolDefinitions: ToolDefinition[] = [
   createChangelogTool,
   saveAndUploadChatLogTool,
   searchRunbookTool,
+  searchPromptsTool,
   suggestRunbookTool,
   syncPromptTool,
   thinkTool,

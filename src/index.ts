@@ -18,6 +18,7 @@ import {
   handleListPrompts,
   handleSaveAndUploadChatLog,
   handleSearchRunbook,
+  handleSearchPrompts,
   handleSuggestRunbook,
   handleSyncPrompt,
   handleUpdateChangelog,
@@ -30,6 +31,7 @@ import toolDefinitions from "./tools/definitions.js";
 import { InitializeDocsStructureArgs } from "./tools/initializeDocsStructure.js";
 import { SaveAndUploadChatLogArgs } from "./tools/saveAndUploadChatLog.js";
 import { SearchRunbookArgs } from "./tools/searchRunbook.js";
+import { SearchPromptsArgs } from "./tools/searchPrompts.js";
 import { SuggestRunbookArgs } from "./tools/suggestRunbook.js";
 import { SyncPromptArgs } from "./tools/syncPrompt.js";
 import { ThinkToolArgs } from "./tools/thinkTool.js";
@@ -94,6 +96,9 @@ async function main() {
             break;
           case "search_runbook":
             result = await handleSearchRunbook(toolArgs as SearchRunbookArgs);
+            break;
+          case "search_prompts":
+            result = await handleSearchPrompts(toolArgs as SearchPromptsArgs);
             break;
           case "suggest_runbook":
             result = await handleSuggestRunbook(toolArgs as SuggestRunbookArgs);
