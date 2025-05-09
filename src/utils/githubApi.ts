@@ -280,7 +280,6 @@ export async function searchCode(
 
   const cacheKey = `${owner}/${repo}:${query}`;
   const cachedResult = searchCache.get(cacheKey);
-  console.error({cachedResult})
 
   if (cachedResult && Date.now() - cachedResult.timestamp < CACHE_TTL) {
     console.error(`Returning cached search result for ${cacheKey}`);
