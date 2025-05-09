@@ -23,14 +23,11 @@ export async function handleSearchRunbook(
       keyword,
     );
 
-    const processedResults = [];
     const itemsToProcess = searchResults.items.slice(0, 5); // Limit to top 5 results
 
-    // For each matching file, fetch the full content
-    for (const item of itemsToProcess) {
+    // Map each item to a promise that fetches and processes its content
+    const contentPromises = itemsToProcess.map(async (item) => {
       try {
-        // getContents returns GitHubContentsResponse, which can be an array if the path is a directory.
-        // Since searchCode finds files, we expect a single GitHubContentItem.
         const fileContentResponse = await githubApi.getContents(
           githubOwner,
           githubRepo,
@@ -38,7 +35,6 @@ export async function handleSearchRunbook(
           item.repository.default_branch,
         );
 
-        // Ensure it's a single file item and has content
         if (
           !Array.isArray(fileContentResponse) &&
           fileContentResponse.type === "file" &&
@@ -48,52 +44,50 @@ export async function handleSearchRunbook(
             fileContentResponse.content,
             "base64",
           ).toString("utf-8");
-
-          // We still include the snippet for context, and now the full content
           const snippet =
             item.text_matches && item.text_matches.length > 0
               ? item.text_matches[0].fragment
               : "No snippet available";
-
-          processedResults.push({
+          return {
             path: item.path,
-            snippet: snippet, // Keep snippet for quick context
-            full_content: fullContent, // Add full content
+            snippet: snippet,
+            full_content: fullContent,
             url: item.html_url,
-          });
+          };
         } else {
           console.warn(
             `Could not fetch full content for ${item.path}. Unexpected response type or missing content.`,
           );
-          // Optionally push a result without full content or skip
-          processedResults.push({
+          return {
             path: item.path,
             snippet:
               item.text_matches && item.text_matches.length > 0
                 ? item.text_matches[0].fragment
                 : "No snippet available",
-            full_content: null, // Indicate no full content was fetched
+            full_content: null,
             url: item.html_url,
-            message: "Could not fetch full content.",
-          });
+            message: "Could not fetch full content. Unexpected response type or missing content.",
+          };
         }
       } catch (contentError: any) {
         console.error(
           `Error fetching content for ${item.path}: ${contentError.message}`,
         );
-        // Optionally push a result with error info or skip
-        processedResults.push({
+        return {
           path: item.path,
           snippet:
             item.text_matches && item.text_matches.length > 0
               ? item.text_matches[0].fragment
               : "No snippet available",
-          full_content: null, // Indicate no full content was fetched
+          full_content: null,
           url: item.html_url,
           message: `Error fetching content: ${contentError.message}`,
-        });
+        };
       }
-    }
+    });
+
+    // Wait for all content fetching and processing promises to resolve
+    const processedResults = await Promise.all(contentPromises);
 
     return {
       results: processedResults,

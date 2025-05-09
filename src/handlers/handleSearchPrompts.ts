@@ -27,11 +27,11 @@ export async function handleSearchPrompts(
       constructedQuery,
     );
 
-    const processedResults = [];
     // Limit to top 5 results, similar to handleSearchRunbook
-    const itemsToProcess = searchResults.items.slice(0, 5); 
+    const itemsToProcess = searchResults.items.slice(0, 5);
 
-    for (const item of itemsToProcess) {
+    // Map each item to a promise that fetches and processes its content
+    const contentPromises = itemsToProcess.map(async (item) => {
       try {
         const fileContentResponse = await githubApi.getContents(
           githubOwner,
@@ -55,17 +55,17 @@ export async function handleSearchPrompts(
               ? item.text_matches[0].fragment
               : "No snippet available";
 
-          processedResults.push({
+          return {
             path: item.path,
             snippet: snippet,
             full_content: fullContent,
             url: item.html_url,
-          });
+          };
         } else {
           console.warn(
             `Could not fetch full content for ${item.path}. Unexpected response type or missing content.`,
           );
-          processedResults.push({
+          return {
             path: item.path,
             snippet:
               item.text_matches && item.text_matches.length > 0
@@ -73,14 +73,14 @@ export async function handleSearchPrompts(
                 : "No snippet available",
             full_content: null,
             url: item.html_url,
-            message: "Could not fetch full content.",
-          });
+            message: "Could not fetch full content. Unexpected response type or missing content.",
+          };
         }
       } catch (contentError: any) {
         console.error(
           `Error fetching content for ${item.path}: ${contentError.message}`,
         );
-        processedResults.push({
+        return {
           path: item.path,
           snippet:
             item.text_matches && item.text_matches.length > 0
@@ -89,9 +89,12 @@ export async function handleSearchPrompts(
           full_content: null,
           url: item.html_url,
           message: `Error fetching content: ${contentError.message}`,
-        });
+        };
       }
-    }
+    });
+
+    // Wait for all content fetching and processing promises to resolve
+    const processedResults = await Promise.all(contentPromises);
 
     return {
       results: processedResults,
