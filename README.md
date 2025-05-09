@@ -326,7 +326,7 @@ GITHUB_PERSONAL_ACCESS_TOKEN=your_github_token_here
 
 Ensure `.env` is added to your `.gitignore` file.
 
-## Usage with Claude Desktop (Conceptual)
+## Usage with Claude Desktop or MCP clients
 
 To use this MCP server with Claude Desktop, you would add a configuration entry to your Claude Desktop settings. The exact `command` and `args` will depend on how you choose to run the server (e.g., directly via `node` or using Docker).
 
@@ -368,6 +368,12 @@ Example configuration for running with Docker:
     }
   }
 }
+```
+
+Then add this prompt to your cursor rules, cline rules, or windsurf rules:
+
+```
+ALWAYS run the `init_playbook` tool before starting to get instructions on how things should be done and documented.
 ```
 
 Consult the Claude Desktop documentation for detailed instructions on configuring MCP servers.
