@@ -5,7 +5,13 @@ import { ToolDefinition } from "../types.js";
 export const SearchRunbookArgsSchema = z.object({
   keyword: z
     .string()
-    .describe("The keyword to search for in the runbook repository."),
+    .describe(
+      "The keyword (maximum 3 words) to search for in the runbook repository.",
+    )
+    .refine(
+      (keyword) => keyword.split(" ").length <= 3,
+      "Keyword must be a maximum of 3 words.",
+    ),
 });
 
 export type SearchRunbookArgs = z.infer<typeof SearchRunbookArgsSchema>;
