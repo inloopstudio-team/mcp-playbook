@@ -9,9 +9,7 @@ export const SyncPromptArgsSchema = z.object({
   promptName: z
     .string()
     .describe("The variable or logical name of the prompt within the project."),
-  promptContent: z
-    .string()
-    .describe("The actual content of the LLM prompt."),
+  promptContent: z.string().describe("The actual content of the LLM prompt."),
 });
 
 export type SyncPromptArgs = z.infer<typeof SyncPromptArgsSchema>;

@@ -66,7 +66,8 @@ export async function handleSearchRunbook(
                 : "No snippet available",
             full_content: null,
             url: item.html_url,
-            message: "Could not fetch full content. Unexpected response type or missing content.",
+            message:
+              "Could not fetch full content. Unexpected response type or missing content.",
           };
         }
       } catch (contentError: any) {

@@ -1,24 +1,19 @@
 import { RequestError } from "@octokit/request-error";
 import * as path from "path";
-import {
-  SyncPromptArgs,
-  SyncPromptArgsSchema,
-} from "../tools/syncPrompt.js";
+import { SyncPromptArgs, SyncPromptArgsSchema } from "../tools/syncPrompt.js";
 import * as githubApi from "../utils/githubApi.js";
 import { validateArgs } from "../utils/validationUtils.js";
-import { Buffer } from "buffer";
 
-export async function handleSyncPrompt(
-  args: SyncPromptArgs,
-): Promise<any> {
+export async function handleSyncPrompt(args: SyncPromptArgs): Promise<any> {
   try {
-    const {
-      projectName,
-      promptName,
-      promptContent,
-    } = validateArgs(SyncPromptArgsSchema, args);
+    const { projectName, promptName, promptContent } = validateArgs(
+      SyncPromptArgsSchema,
+      args,
+    );
 
-    console.error(`Handling sync_prompt for project: ${projectName}, prompt: ${promptName}`);
+    console.error(
+      `Handling sync_prompt for project: ${projectName}, prompt: ${promptName}`,
+    );
 
     const githubOwner = "dwarvesf";
     const githubRepo = "prompt-db";
@@ -41,10 +36,7 @@ export async function handleSyncPrompt(
         targetFilePath,
         baseBranch,
       );
-      if (
-        !Array.isArray(existingContent) &&
-        existingContent.type === "file"
-      ) {
+      if (!Array.isArray(existingContent) && existingContent.type === "file") {
         existingFileSha = existingContent.sha;
         console.error(`Found existing file with SHA: ${existingFileSha}`);
       }

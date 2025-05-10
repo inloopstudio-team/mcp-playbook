@@ -290,7 +290,7 @@ export async function searchCode(
   try {
     let searchQuery = `${query}`;
     if (additionalQualifiers && additionalQualifiers.length > 0) {
-      searchQuery += ` ${additionalQualifiers.join(' ')}`;
+      searchQuery += ` ${additionalQualifiers.join(" ")}`;
     }
 
     console.error(`Using search query: ${searchQuery}`);

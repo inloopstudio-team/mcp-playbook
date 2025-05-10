@@ -4,9 +4,9 @@ import {
   SuggestRunbookArgs,
   SuggestRunbookArgsSchema,
 } from "../tools/suggestRunbook.js";
+import { injectAuthorIntoFrontmatter } from "../utils/frontmatterUtils.js";
 import * as githubApi from "../utils/githubApi.js";
 import { validateArgs } from "../utils/validationUtils.js";
-import { injectAuthorIntoFrontmatter } from "../utils/frontmatterUtils.js";
 
 export async function handleSuggestRunbook(
   args: SuggestRunbookArgs,

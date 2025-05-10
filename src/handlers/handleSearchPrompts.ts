@@ -1,10 +1,10 @@
+import { Buffer } from "buffer";
 import {
   SearchPromptsArgs,
   SearchPromptsArgsSchema,
 } from "../tools/searchPrompts.js";
 import * as githubApi from "../utils/githubApi.js";
 import { validateArgs } from "../utils/validationUtils.js";
-import { Buffer } from "buffer";
 
 export async function handleSearchPrompts(
   args: SearchPromptsArgs,
@@ -16,14 +16,11 @@ export async function handleSearchPrompts(
 
     const githubOwner = "dwarvesf";
     const githubRepo = "prompt-db";
-    
+
     // The searchCode function in githubApi.ts already adds `repo:${owner}/${repo}`
     // We need to provide the keyword and exclude the 'synced_prompts/' folder.
     const constructedQuery = `${keyword}`;
-    const additionalQualifiers = [
-      "in:file,path",
-      "-path:synced_prompts"
-    ]
+    const additionalQualifiers = ["in:file,path", "-path:synced_prompts"];
 
     const searchResults = await githubApi.searchCode(
       githubOwner,
@@ -78,7 +75,8 @@ export async function handleSearchPrompts(
                 : "No snippet available",
             full_content: null,
             url: item.html_url,
-            message: "Could not fetch full content. Unexpected response type or missing content.",
+            message:
+              "Could not fetch full content. Unexpected response type or missing content.",
           };
         }
       } catch (contentError: any) {

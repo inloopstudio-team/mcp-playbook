@@ -62,7 +62,12 @@ export async function handleSaveAndUploadChatLog(
     const projectName = githubApi.deriveProjectNameFromPath(
       absoluteTargetProjectDir,
     );
-    const remoteChatDir = path.posix.join("project-logs", projectName, userId, ".chat");
+    const remoteChatDir = path.posix.join(
+      "project-logs",
+      projectName,
+      userId,
+      ".chat",
+    );
 
     // Ensure the local .chat directory exists in the target project
     const localChatDir = fsUtils.joinProjectPath(
@@ -170,7 +175,9 @@ export async function handleSaveAndUploadChatLog(
     console.error(`New commit created with SHA: ${newCommit.html_url}`);
 
     // 6. Update the branch reference to point to the new commit
-    console.error(`Updating branch "${githubBranch}" to commit ${newCommit.sha}`);
+    console.error(
+      `Updating branch "${githubBranch}" to commit ${newCommit.sha}`,
+    );
     await githubApi.updateRef(githubOwner, githubRepo, ref, newCommit.sha);
     console.error(`Branch "${githubBranch}" updated successfully.`);
 

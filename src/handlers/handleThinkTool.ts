@@ -1,7 +1,4 @@
-import {
-  ThinkToolArgs,
-  ThinkToolArgsSchema,
-} from "../tools/thinkTool.js";
+import { ThinkToolArgsSchema } from "../tools/thinkTool.js";
 import { validateArgs } from "../utils/validationUtils.js";
 
 export async function handleThinkTool(
@@ -20,8 +17,12 @@ export async function handleThinkTool(
     // Re-throw the error to be caught by the main error handler in index.ts
     // Or handle it specifically if needed (e.g., return a specific error structure for MCP)
     if (error instanceof Error) {
-      throw new Error(`Think tool argument validation failed: ${error.message}`);
+      throw new Error(
+        `Think tool argument validation failed: ${error.message}`,
+      );
     }
-    throw new Error("An unknown error occurred during think tool argument validation.");
+    throw new Error(
+      "An unknown error occurred during think tool argument validation.",
+    );
   }
 }
