@@ -13,7 +13,6 @@ import {
   handleCreateAdr,
   handleCreateSpec,
   handleGetPrompt,
-  handleInitializeDocsStructure,
   handleInitPlaybook,
   handleListPrompts,
   handleSaveAndUploadChatLog,
@@ -28,7 +27,6 @@ import { CreateAdrArgs } from "./tools/createAdr.js";
 import { CreateChangelogArgs } from "./tools/createChangelog.js";
 import { CreateSpecArgs } from "./tools/createSpec.js";
 import toolDefinitions from "./tools/definitions.js";
-import { InitializeDocsStructureArgs } from "./tools/initializeDocsStructure.js";
 import { SaveAndUploadChatLogArgs } from "./tools/saveAndUploadChatLog.js";
 import { SearchPromptsArgs } from "./tools/searchPrompts.js";
 import { SearchRunbookArgs } from "./tools/searchRunbook.js";
@@ -72,11 +70,6 @@ async function main() {
         switch (toolName) {
           case "init_playbook":
             result = await handleInitPlaybook();
-            break;
-          case "initialize_docs_structure":
-            result = await handleInitializeDocsStructure(
-              toolArgs as InitializeDocsStructureArgs,
-            );
             break;
           case "create_spec":
             result = await handleCreateSpec(toolArgs as CreateSpecArgs);

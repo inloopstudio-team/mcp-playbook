@@ -95,19 +95,18 @@ This flow ensures that each tool call is directed to the correct logic for execu
 
 ## Available Tools
 
-| Tool Name                   | Description                                                                                                                                                                                                                                   |
-| :-------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `init_playbook`             | Provides an instruction to the LLM about the purpose of the mcp-playbook server, which is to facilitate local project documentation and enable partial replication of documentation and chat logs for an AI-powered playbook.                 |
-| `initialize_docs_structure` | Initializes the standard documentation folder structure (docs/, docs/specs/, docs/adr/, docs/changelog/, and .chat/) within the specified target project directory.                                                                           |
-| `create_spec`               | Creates or overwrites a new specification file (e.g., PRD, RFC, architectural planning) in the docs/specs/ directory of the target project. Specification files will be named following a `spec-name.md` convention with sequence numbering.  |
-| `create_adr`                | Creates or overwrites a new Architectural Decision Record (ADR) file in the docs/adr/ directory of the target project. ADR files will be named following an `adr-name.md` convention with sequence numbering.                                 |
-| `create_changelog`          | Creates a new, detailed, and user-facing changelog entry file in the docs/changelog/ directory of the target project. Each changelog entry will be a separate file named following a `changelog-entry.md` convention with sequence numbering. |
-| `save_and_upload_chat_log`  | Captures the current conversation history, saves it as a markdown file in the .chat/ directory of the target project, and uploads it to the dwarvesf/prompt-log GitHub repository. Requires a user ID for organization.                       |
-| `search_runbook`            | Fuzzy search for keywords in the `dwarvesf/runbook` GitHub repository. If keyword has spaces, searches exact phrase OR individual words. Returns top 5 matches with full content & total count.                                               |
-| `search_prompts`            | Fuzzy search for keywords in the `dwarvesf/prompt-db` GitHub repository (excluding the `synced_prompts/` folder).                                                                                                                             |
-| `suggest_runbook`           | Creates or updates a Pull Request in the dwarvesf/runbook repository with a new runbook entry.                                                                                                                                                |
-| `sync_prompt`               | Syncs an LLM prompt to the dwarvesf/prompt-db GitHub repository.                                                                                                                                                                              |
-| `think`                     | Use the tool to think about something. It will not obtain new information or make any changes to the repository, but just log the thought. Use it when complex reasoning or brainstorming is needed.                                          |
+| Tool Name                  | Description                                                                                                                                                                                                                                   |
+| :------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `init_playbook`            | Provides an instruction to the LLM about the purpose of the mcp-playbook server, which is to facilitate local project documentation and enable partial replication of documentation and chat logs for an AI-powered playbook.                 |
+| `create_spec`              | Creates or overwrites a new specification file (e.g., PRD, RFC, architectural planning) in the docs/specs/ directory of the target project. Specification files will be named following a `spec-name.md` convention with sequence numbering.  |
+| `create_adr`               | Creates or overwrites a new Architectural Decision Record (ADR) file in the docs/adr/ directory of the target project. ADR files will be named following an `adr-name.md` convention with sequence numbering.                                 |
+| `create_changelog`         | Creates a new, detailed, and user-facing changelog entry file in the docs/changelog/ directory of the target project. Each changelog entry will be a separate file named following a `changelog-entry.md` convention with sequence numbering. |
+| `save_and_upload_chat_log` | Captures the current conversation history, saves it as a markdown file in the .chat/ directory of the target project, and uploads it to the dwarvesf/prompt-log GitHub repository. Requires a user ID for organization.                       |
+| `search_runbook`           | Fuzzy search for keywords in the `dwarvesf/runbook` GitHub repository. If keyword has spaces, searches exact phrase OR individual words. Returns top 5 matches with full content & total count.                                               |
+| `search_prompts`           | Fuzzy search for keywords in the `dwarvesf/prompt-db` GitHub repository (excluding the `synced_prompts/` folder).                                                                                                                             |
+| `suggest_runbook`          | Creates or updates a Pull Request in the dwarvesf/runbook repository with a new runbook entry.                                                                                                                                                |
+| `sync_prompt`              | Syncs an LLM prompt to the dwarvesf/prompt-db GitHub repository.                                                                                                                                                                              |
+| `think`                    | Use the tool to think about something. It will not obtain new information or make any changes to the repository, but just log the thought. Use it when complex reasoning or brainstorming is needed.                                          |
 
 ## Overview
 
@@ -149,24 +148,6 @@ A JSON object containing the instruction.
 ```json
 {
   "instruction": "string" // Instruction for the LLM regarding the purpose of the mcp-playbook.
-}
-```
-
-### `initialize_docs_structure`
-
-Initializes the standard documentation folder structure (`docs/`, `docs/specs/`, `docs/adr/`, `docs/changelog/`, and `.chat/`) within the specified target project directory.
-
-**Parameters:**
-
-- `target_project_dir` (string, required): The absolute or relative path to the root of the target project directory where the documentation structure should be created.
-
-**Returns:**
-A JSON object indicating success or failure.
-
-```json
-{
-  "status": "success" | "error",
-  "message": "string" // Success or error description
 }
 ```
 
@@ -463,10 +444,6 @@ Run `npm run build` and update your MCP config to direct it to the output `index
 ```
 
 ## Usage Example
-
-```
-mcp_mcp-playbook_initialize_docs_structure(target_project_dir="/Users/monotykamary/VCS/working-remote/my-new-project")
-```
 
 ```
 mcp_mcp-playbook_create_spec(target_project_dir="/Users/monotykamary/VCS/working-remote/my-new-project", spec_name="Initial Design", content="# Initial Design Specification\n\nThis document outlines the initial design of the project...")
