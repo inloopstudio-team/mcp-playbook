@@ -6,6 +6,10 @@ import fetch from "node-fetch"; // Import node-fetch
 import * as path from "path";
 
 import {
+  formatClineChatLogForUpload,
+  getClineConversationHistory,
+} from "./parser/clineChatParser.js"; // Import Cline parser and formatter
+import {
   formatConversationHistory as formatCursorHistory, // Alias Cursor formatter
   getCursorConversationHistory,
 } from "./parser/cursorChatParser.js"; // Import with .js extension
@@ -38,6 +42,10 @@ export async function handleSaveAndUploadChatLog(
   } else if (editorType === "zed") {
     conversationHistory = await getZedConversationHistory(targetProjectDir);
     formatFunction = formatZedHistory; // Use Zed formatter
+  } else if (editorType === "cline") {
+    // Add Cline case
+    conversationHistory = await getClineConversationHistory(targetProjectDir);
+    formatFunction = formatClineChatLogForUpload; // Use Cline formatter
   } else {
     console.warn(`Unsupported editor type: ${editorType}`);
     return {
@@ -50,8 +58,13 @@ export async function handleSaveAndUploadChatLog(
   // Adjust check based on the new structure returned by the parser
   if (
     !conversationHistory ||
-    !Array.isArray(conversationHistory.conversations) ||
-    conversationHistory.conversations.length === 0
+    (editorType === "cline" &&
+      (!conversationHistory.conversation ||
+        !Array.isArray(conversationHistory.conversation.messages) ||
+        conversationHistory.conversation.messages.length === 0)) ||
+    (editorType !== "cline" &&
+      (!Array.isArray(conversationHistory.conversations) ||
+        conversationHistory.conversations.length === 0))
   ) {
     const message = `Could not retrieve or found no relevant conversation history for editor type: ${editorType} in workspace associated with project ${targetProjectDir}.`;
     console.error(message);
