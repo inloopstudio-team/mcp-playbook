@@ -59,9 +59,9 @@ export async function handleSaveAndUploadChatLog(
   if (
     !conversationHistory ||
     (editorType === "cline" &&
-      (!conversationHistory.conversation ||
-        !Array.isArray(conversationHistory.conversation.messages) ||
-        conversationHistory.conversation.messages.length === 0)) ||
+      (!conversationHistory.messages || // Check messages directly
+        !Array.isArray(conversationHistory.messages) ||
+        conversationHistory.messages.length === 0)) ||
     (editorType !== "cline" &&
       (!Array.isArray(conversationHistory.conversations) ||
         conversationHistory.conversations.length === 0))

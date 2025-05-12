@@ -23,7 +23,9 @@ export function extractPathFromUri(uri: string): string | null {
   try {
     if (uri.startsWith("file:///")) {
       let pathname = new URL(uri).pathname;
-      if (process.platform === "win32" && pathname.startsWith("/")) {
+      if (false && pathname.startsWith("/")) {
+        // Original: process.platform === "win32"
+
         pathname = pathname.substring(1); // Remove leading slash for Windows drive letters
       }
       // Decode URI components like %20
