@@ -3,7 +3,7 @@
 import * as fs from "fs/promises";
 import * as os from "os";
 import * as path from "path";
-import { extractProjectNameFromPath } from "./cursorChatParser.js"; // Reuse helper
+import { extractProjectNameFromPath, safeJsonParse } from "./parserUtils.js"; // Reuse helper
 
 // --- Types ---
 
@@ -49,19 +49,6 @@ interface ZedConversationHistory {
 }
 
 // --- Helper Functions ---
-
-// Safely parse JSON, returning null on error
-function safeJsonParse<T = any>(
-  jsonString: string | null | undefined,
-): T | null {
-  if (!jsonString) return null;
-  try {
-    return JSON.parse(jsonString) as T;
-  } catch (e: any) {
-    // console.warn(`Failed to parse JSON: ${e.message}`);
-    return null;
-  }
-}
 
 // Get platform-specific Zed conversation directory
 function getZedConversationDir(): string | null {
