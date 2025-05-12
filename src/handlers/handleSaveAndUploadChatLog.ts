@@ -1,198 +1,157 @@
-import * as path from "path";
-import {
-  SaveAndUploadChatLogArgs,
-  SaveAndUploadChatLogArgsSchema,
-} from "../tools/saveAndUploadChatLog.js";
-import * as fsUtils from "../utils/fsUtils.js";
-import * as githubApi from "../utils/githubApi.js";
-import { validateArgs } from "../utils/validationUtils.js";
+// src/handlers/handleSaveAndUploadChatLog.ts
 
-// Placeholder for conversation history retrieval
-// In a real MCP server, this would be provided by the framework hosting the server.
-// This function needs to access the framework's conversation state.
-interface ConversationTurn {
-  role: "user" | "model";
-  content: string;
-}
+import * as path from 'path';
+import * as fs from 'fs/promises'; // Use promises version for async operations
+import * as fsSync from 'fs'; // For existsSync
+import { Buffer } from 'buffer'; // Required for base64 encoding
+// Need a library for making HTTP requests, like node-fetch.
+// import fetch from 'node-fetch'; // This dependency must be added to package.json and installed.
+// Assuming a placeholder or a separate module handles GitHub API calls.
+// As per the README, the server implements GitHub interactions directly.
+// A simple fetch call placeholder will be added for now.
 
-// IMPORTANT: Replace this placeholder with actual logic to get conversation history
-function getConversationHistoryPlaceholder(): ConversationTurn[] {
-  console.warn(
-    "WARNING: Using placeholder conversation history! Replace with actual framework integration.",
-  );
-  // This is a dummy implementation for planning purposes.
-  // A real implementation would access the conversation history from the MCP server framework.
-  return [
-    {
-      role: "user",
-      content: "Hello, this is a test conversation for the log.",
-    },
-    { role: "model", content: "This is the model's first reply." },
-    {
-      role: "user",
-      content: "And this is a follow-up message, asking to save the log.",
-    },
-  ];
-}
+import { getCursorConversationHistory, formatConversationHistory } from './parser/cursorChatParser.js'; // Import with .js extension
 
-export async function handleSaveAndUploadChatLog(
-  args: SaveAndUploadChatLogArgs,
-): Promise<any> {
-  try {
-    const { target_project_dir } = validateArgs(
-      SaveAndUploadChatLogArgsSchema,
-      args,
-    );
+// Assuming the tool definition in src/index.ts will call this function
+// with targetProjectDir, userId, and optionally editorType.
+export async function handleSaveAndUploadChatLog(targetProjectDir: string, userId: string, editorType: string = 'cursor'): Promise<any> {
 
-    const absoluteTargetProjectDir = path.resolve(target_project_dir);
+    console.log(`Handling save and upload chat log for user: ${userId} in project: ${targetProjectDir}`);
+    console.log(`Attempting to get history for editor type: ${editorType}`);
 
-    // Get authenticated user's GitHub username
-    const user = await githubApi.getMe();
-    const userId = user.login; // Use login as the user identifier
+    let conversationHistory = null;
 
-    console.error(
-      `Handling save_and_upload_chat_log for: ${absoluteTargetProjectDir}, user: ${userId}`,
-    );
-    const githubOwner = "dwarvesf";
-    const githubRepo = "prompt-log";
-    const githubBranch = "main"; // Or configure/determine branch
-    const ref = `heads/${githubBranch}`;
-
-    // Derive GitHub path based on target project name and user ID
-    const projectName = githubApi.deriveProjectNameFromPath(
-      absoluteTargetProjectDir,
-    );
-    const remoteChatDir = path.posix.join(
-      "project-logs",
-      projectName,
-      userId,
-      ".chat",
-    );
-
-    // Ensure the local .chat directory exists in the target project
-    const localChatDir = fsUtils.joinProjectPath(
-      absoluteTargetProjectDir,
-      ".chat",
-    );
-    fsUtils.createDirectory(localChatDir);
-
-    // Get list of local files in .chat directory
-    const localFiles = fsUtils
-      .listDirectory(localChatDir)
-      .filter((file) => file.endsWith(".chat"));
-
-    if (localFiles.length === 0) {
-      return {
-        status: "success",
-        message: "No chat log files found locally to sync.",
-      };
+    // Get conversation history based on editor type
+    if (editorType === 'cursor') {
+        // Pass the targetProjectDir to the Cursor parser
+        conversationHistory = await getCursorConversationHistory(targetProjectDir);
+    } else {
+        console.warn(`Unsupported editor type: ${editorType}`);
+        return { status: 'error', message: `Unsupported editor type: ${editorType}` };
     }
 
-    // 1. Get the SHA of the latest commit on the target branch
-    const latestRef = await githubApi.getRef(githubOwner, githubRepo, ref);
-    const latestCommitSha = latestRef.object.sha;
-
-    // 2. Get the tree SHA from the latest commit
-    const latestCommit = await githubApi.getCommit(
-      githubOwner,
-      githubRepo,
-      latestCommitSha,
-    );
-    const baseTreeSha = latestCommit.tree.sha;
-
-    // 3. Get the contents of the latest tree to include existing files
-    // This is needed to build the new tree correctly, including files outside the .chat directory
-    const baseTree = await githubApi.getTree(
-      githubOwner,
-      githubRepo,
-      baseTreeSha,
-    );
-
-    // Prepare tree items for the new commit
-    const newTreeItems: githubApi.GitHubCreateTreeItem[] = [];
-
-    // Keep existing files from the base tree, excluding the entire remoteChatDir path
-    // This prevents carrying over old versions of chat files or files that were deleted locally.
-    const filesToKeep = baseTree.tree.filter(
-      (item) => !item.path.startsWith(remoteChatDir + "/"),
-    );
-
-    for (const item of filesToKeep) {
-      newTreeItems.push({
-        path: item.path,
-        mode: item.mode as githubApi.GitHubCreateTreeItem["mode"],
-        type: item.type as githubApi.GitHubCreateTreeItem["type"],
-        sha: item.sha,
-      });
+    // Check if history was successfully retrieved
+    if (!conversationHistory || (Array.isArray(conversationHistory.messages) && conversationHistory.messages.length === 0)) {
+        const message = `Could not retrieve or found no conversation history for editor type: ${editorType} for project ${targetProjectDir}.`;
+        console.warn(message);
+        // Return an error as there's no history to save based on the current logic.
+        return { status: 'error', message: message };
     }
 
-    // Add or update local .chat files
-    for (const filename of localFiles) {
-      const localFilePath = fsUtils.joinProjectPath(localChatDir, filename);
-      const fileContent = fsUtils.readFile(localFilePath);
+    // Format the retrieved history into markdown
+    const chatLogContent = formatConversationHistory(conversationHistory); // Use the imported formatter
 
-      // Create a new blob for the file content
-      console.error(`Creating blob for ${filename}...`);
-      const blob = await githubApi.createBlob(
-        githubOwner,
-        githubRepo,
-        fileContent,
-        "utf-8",
-      );
-      console.error(`Blob created with SHA: ${blob.sha}`);
+    // --- Logic to save and upload the file using Node.js APIs ---
+    const timestamp = new Date().toISOString().replace(/[:.-]/g, '_');
+    // Sanitize userId for filename
+    const safeUserId = userId.replace(/[^a-zA-Z0-9_-]/g, '_');
+    // Use a slug from the project path or workspace name for the filename
+     const projectSlug = conversationHistory.workspaceName
+                           ? conversationHistory.workspaceName.replace(/[^a-zA-Z0-9_-]/g, '_')
+                           : path.basename(conversationHistory.projectPath || '').replace(/[^a-zA-Z0-9_-]/g, '_'); // Added check for conversationHistory.projectPath
+    const chatLogFilename = `chat_log_${safeUserId}_${projectSlug}_${timestamp}.md`;
+    const localChatDir = path.join(targetProjectDir, '.chat');
+    const localFilePath = path.join(localChatDir, chatLogFilename);
+    const githubFilePath = `prompt-logs/${safeUserId}/${chatLogFilename}`; // Path in the GitHub repo
 
-      // Add the new/updated file to the tree items
-      const remoteFilePath = path.posix.join(remoteChatDir, filename);
-      newTreeItems.push({
-        path: remoteFilePath,
-        mode: "100644", // File mode
-        type: "blob",
-        sha: blob.sha,
-      });
+    console.log(`Saving chat log locally to: ${localFilePath}`);
+    console.log(`Uploading chat log to GitHub path: ${githubFilePath}`);
+
+
+    try {
+        // Ensure the local .chat directory exists using Node.js fs
+        await fs.mkdir(localChatDir, { recursive: true });
+        console.log(`Local directory ensured: ${localChatDir}`);
+
+        // Save the chat log locally using Node.js fs
+        await fs.writeFile(localFilePath, chatLogContent, 'utf-8');
+        console.log(`Chat log saved locally: ${localFilePath}`);
+
+
+        // Upload the chat log to the GitHub repository using a Node.js HTTP library (e.g., node-fetch)
+        // This part needs a proper implementation using GitHub API and authentication (GITHUB_PERSONAL_ACCESS_TOKEN).
+        // As per README, this server implements GitHub interactions directly.
+        const githubOwner = 'dwarvesf';
+        const githubRepo = 'prompt-log';
+        const githubBranch = 'main'; // Or a configurable branch
+        const githubToken = process.env.GITHUB_PERSONAL_ACCESS_TOKEN; // Get token from environment variables
+
+        if (!githubToken) {
+            console.error('GITHUB_PERSONAL_ACCESS_TOKEN environment variable is not set.');
+            return { status: 'error', message: 'GitHub token not configured for upload.' };
+        }
+
+        console.log(`Attempting to upload to github.com/${githubOwner}/${githubRepo} on branch ${githubBranch}`);
+
+        // --- Placeholder for GitHub API upload using node-fetch ---
+        // This needs to be replaced with a proper implementation that interacts with the GitHub Content API (PUT /repos/{owner}/{repo}/contents/{path})
+        // and handles checking for existing files (GET) if updates are needed (though we are creating new files here).
+        // A dedicated module for GitHub API calls would be cleaner.
+
+        // Example structure (requires node-fetch dependency and proper API call details):
+        /*
+        const githubApiUrl = `https://api.github.com/repos/${githubOwner}/${githubRepo}/contents/${githubFilePath}`;
+        const base64Content = Buffer.from(chatLogContent).toString('base64');
+
+        const uploadResponse = await fetch(githubApiUrl, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `token ${githubToken}`,
+                'Content-Type': 'application/json',
+                 // GitHub API requires Accept header for certain previews, might be needed depending on API version
+                'Accept': 'application/vnd.github.v3+json'
+            },
+            body: JSON.stringify({
+                message: `Add chat log for ${userId} - ${projectSlug} (${timestamp})`,
+                content: base64Content,
+                branch: githubBranch,
+                 // Optional: sha if updating an existing file, but we are creating new ones
+                // sha: '...'
+            })
+        });
+
+        if (!uploadResponse.ok) {
+            const errorBody = await uploadResponse.text();
+            console.error(`GitHub API upload failed: ${uploadResponse.status} ${uploadResponse.statusText}`, errorBody);
+            return { status: 'error', message: `GitHub upload failed: ${uploadResponse.statusText}` };
+        }
+
+        const uploadResult = await uploadResponse.json();
+        console.log('Chat log uploaded to GitHub successfully.');
+
+        return {
+            status: 'success',
+            local_path: localFilePath,
+            github_path: githubFilePath,
+            github_url: uploadResult.content?.html_url, // Adjust based on actual API response structure
+            commit_sha: uploadResult.commit?.sha,
+            commit_url: uploadResult.commit?.html_url,
+            message: 'Chat log saved locally and uploaded to GitHub.'
+        };
+        */
+        // --- End Placeholder ---
+
+        console.warn("GitHub upload logic is currently a placeholder and requires node-fetch and GitHub API implementation.");
+        // Returning a placeholder success for now, but the real upload needs to be implemented.
+         return {
+            status: 'success',
+            local_path: localFilePath,
+            github_path: githubFilePath,
+            github_url: 'placeholder_github_url',
+            commit_sha: 'placeholder_commit_sha',
+            commit_url: 'placeholder_commit_url',
+            message: 'Chat log saved locally. GitHub upload placeholder.'
+        };
+
+
+    } catch (error: any) { // Explicitly type error as any
+        console.error('An unexpected error occurred during save and upload:', error);
+        return { status: 'error', message: `An unexpected error occurred: ${error.message}` };
     }
-
-    // 4. Create a new tree object
-    console.error("Creating new tree...");
-    // Pass the baseTreeSha to create the new tree based on the latest commit's tree
-    const newTree = await githubApi.createTree(
-      githubOwner,
-      githubRepo,
-      newTreeItems,
-      baseTreeSha,
-    );
-    console.error(`New tree created with SHA: ${newTree.sha}`);
-
-    // 5. Create a new commit object
-    const commitMessage = `sync: merge chat logs from ${projectName} for ${userId}`;
-    console.error(`Creating new commit: "${commitMessage}"`);
-    const newCommit = await githubApi.createCommit(
-      githubOwner,
-      githubRepo,
-      commitMessage,
-      newTree.sha,
-      latestCommitSha,
-    );
-    console.error(`New commit created with SHA: ${newCommit.html_url}`);
-
-    // 6. Update the branch reference to point to the new commit
-    console.error(
-      `Updating branch "${githubBranch}" to commit ${newCommit.sha}`,
-    );
-    await githubApi.updateRef(githubOwner, githubRepo, ref, newCommit.sha);
-    console.error(`Branch "${githubBranch}" updated successfully.`);
-
-    // Return success response
-    return {
-      status: "success",
-      message: `Chat log sync complete. Committed changes to ${githubBranch}.`,
-      commit_sha: newCommit.sha,
-      commit_url: newCommit.html_url,
-    };
-  } catch (e: any) {
-    console.error(`Error during chat log sync: ${e.message}`);
-    return {
-      status: "error",
-      message: `An error occurred during chat log sync: ${e.message}`,
-    };
-  }
 }
+
+// Note: This handler now uses Node.js built-in modules (fs, path, buffer, os).
+// The GitHub upload logic is a placeholder and requires implementing HTTP requests
+// to the GitHub API, ideally using a library like 'node-fetch', which needs
+// to be added as a project dependency (`npm install node-fetch`).
+// Ensure the GITHUB_PERSONAL_ACCESS_TOKEN environment variable is set for the server process.

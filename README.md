@@ -221,7 +221,7 @@ Captures the current conversation history, saves it as a uniquely named markdown
 **Parameters:**
 
 - `target_project_dir` (string, required): The absolute path to the root of the target project directory where the chat log should be saved locally before uploading. Using an absolute path is highly recommended for reliability.
-- `userId` (string, required): The unique ID of the user/LLM client (e.g., your GitHub username). You can often get this using `git config user.email`.
+- `userId` (string, required): The unique ID of the user/LLM client (e.g., your GitHub username).
 
 **Returns:**
 A JSON object indicating success or failure, including the local path, GitHub path, and potentially the GitHub URL if successful.

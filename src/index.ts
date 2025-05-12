@@ -83,8 +83,11 @@ async function main() {
             );
             break;
           case "save_and_upload_chat_log":
+            const saveArgs = toolArgs as SaveAndUploadChatLogArgs;
             result = await handleSaveAndUploadChatLog(
-              toolArgs as SaveAndUploadChatLogArgs,
+              saveArgs.target_project_dir,
+              saveArgs.userId,
+              saveArgs.editorType // editorType is optional in the handler, but pass if available in args
             );
             break;
           case "search_runbook":
