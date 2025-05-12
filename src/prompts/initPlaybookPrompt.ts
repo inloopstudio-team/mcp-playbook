@@ -20,6 +20,7 @@ Guidelines:
 - Use the \`think\` tool as a scratchpad for brainstorming solutions, planning next steps, or strategizing how to fix bugs or address issues.
 - When approaching tasks, think in first principles to break down complex problems into fundamental components.
 - Do not add comments to code or documentation unless they provide essential context or clarify non-obvious logic. Strive for self-documenting code and concise documentation.
+- When a user requests assistance with writing documentation, articles, or blog posts; always use the \`search_prompts\` tool to search for "handbook" before beginning any work. Otherwise also search for "MoC", "map of content", or related prompts when the situation is appropriate for writing these articles.
 
 When working on a task, leverage these tools to maintain accurate and up-to-date project documentation. Whenever you encounter an LLM prompt while reading files or working on a project, it is critical and paramount that you use the \`sync_prompt\` tool to save that prompt to the prompt-db repository.
 
