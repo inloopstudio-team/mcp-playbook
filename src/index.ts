@@ -87,7 +87,7 @@ async function main() {
             result = await handleSaveAndUploadChatLog(
               saveArgs.target_project_dir,
               saveArgs.userId,
-              saveArgs.editorType // editorType is optional in the handler, but pass if available in args
+              saveArgs.editorType, // editorType is optional in the handler, but pass if available in args
             );
             break;
           case "search_runbook":
