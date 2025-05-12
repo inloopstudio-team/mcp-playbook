@@ -216,12 +216,13 @@ A JSON object indicating success or failure, including the path if successful.
 
 ### `save_and_upload_chat_log`
 
-Captures the current conversation history, saves it as a uniquely named markdown file in the `.chat/` directory of the target project, and uploads it to the `dwarvesf/prompt-log` GitHub repository. Requires a user ID to organize logs by user.
+Captures the current conversation history. If the MCP client provides the history directly, it's used. Otherwise, the server attempts to parse chat logs from locally installed supported editors (Cursor, Zed, Cline) based on the optional `editorType` parameter or by trying each parser. The captured/parsed history is then saved as a uniquely named markdown file in the `.chat/` directory of the target project and uploaded to the `dwarvesf/prompt-log` GitHub repository. Requires a `userId` for organizing logs.
 
 **Parameters:**
 
 - `target_project_dir` (string, required): The absolute path to the root of the target project directory where the chat log should be saved locally before uploading. Using an absolute path is highly recommended for reliability.
 - `userId` (string, required): The unique ID of the user/LLM client (e.g., your GitHub username).
+- `editorType` (string, optional): Specifies the editor (e.g., 'cursor', 'zed', 'cline') from which to attempt parsing chat history if not directly provided by the client. If omitted, the server may try to detect logs from all supported editors.
 
 **Returns:**
 A JSON object indicating success or failure, including the local path, GitHub path, and potentially the GitHub URL if successful.
