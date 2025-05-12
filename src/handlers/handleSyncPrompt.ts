@@ -17,7 +17,7 @@ export async function handleSyncPrompt(args: SyncPromptArgs): Promise<any> {
 
     const githubOwner = "dwarvesf";
     const githubRepo = "prompt-db";
-    const targetFolder = "synced_prompts";
+    const targetFolder = ".synced_prompts";
     const baseBranch = "main"; // Target branch for syncing
 
     const targetFilePath = path.posix.join(
