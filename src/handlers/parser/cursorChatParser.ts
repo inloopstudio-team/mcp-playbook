@@ -238,7 +238,7 @@ function inferProjectPathFromHistoryEntries(
 }
 
 // Ported/Adapted from cursor-view/server.py: extract_project_name_from_path
-function extractProjectNameFromPath(rootPath: string | null): string {
+export function extractProjectNameFromPath(rootPath: string | null): string {
   if (!rootPath || rootPath === path.sep) {
     return "Root";
   }

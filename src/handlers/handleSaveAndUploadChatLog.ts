@@ -6,9 +6,13 @@ import fetch from "node-fetch"; // Import node-fetch
 import * as path from "path";
 
 import {
-  formatConversationHistory,
+  formatConversationHistory as formatCursorHistory, // Alias Cursor formatter
   getCursorConversationHistory,
 } from "./parser/cursorChatParser.js"; // Import with .js extension
+import {
+  formatZedConversationHistory as formatZedHistory, // Import Zed formatter
+  getZedConversationHistory,
+} from "./parser/zedChatParser.js"; // Import Zed parser
 
 // Assuming the tool definition in src/index.ts will call this function
 // with targetProjectDir, userId, and optionally editorType.
@@ -25,9 +29,15 @@ export async function handleSaveAndUploadChatLog(
   let conversationHistory: any = null; // Using any for now due to dynamic nature from parser
 
   // Get conversation history based on editor type
+  let formatFunction: (history: any) => string; // Function to format the history
+
   if (editorType === "cursor") {
     // Pass the targetProjectDir to the Cursor parser
     conversationHistory = await getCursorConversationHistory(targetProjectDir);
+    formatFunction = formatCursorHistory; // Use Cursor formatter
+  } else if (editorType === "zed") {
+    conversationHistory = await getZedConversationHistory(targetProjectDir);
+    formatFunction = formatZedHistory; // Use Zed formatter
   } else {
     console.warn(`Unsupported editor type: ${editorType}`);
     return {
@@ -50,7 +60,7 @@ export async function handleSaveAndUploadChatLog(
   }
 
   // Format the retrieved history into markdown
-  const chatLogContent = formatConversationHistory(conversationHistory); // Use the updated formatter
+  const chatLogContent = formatFunction(conversationHistory); // Use the selected formatter
 
   // --- Logic to save and upload the file using Node.js APIs ---
   const timestamp = new Date().toISOString().replace(/[:.-]/g, "_");
