@@ -101,7 +101,7 @@ export async function handleSaveAndUploadChatLog(targetProjectDir: string, userI
 
         const githubApiUrl = `https://api.github.com/repos/${githubOwner}/${githubRepo}/contents/${githubFilePath}`; // Correct API URL
         const base64Content = Buffer.from(chatLogContent).toString('base64');
-        const commitMessage = `Add ${sourceDirName} log for ${safeUserId} in ${safeProjectName} (${timestamp})`; // Commit message reflects source
+        const commitMessage = `sync: Add ${sourceDirName} log for ${safeUserId} in ${safeProjectName} (${timestamp})`; // Commit message reflects source
 
         const uploadResponse = await fetch(githubApiUrl, {
             method: 'PUT',
