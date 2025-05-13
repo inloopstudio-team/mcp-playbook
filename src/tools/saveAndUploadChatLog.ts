@@ -15,9 +15,9 @@ export const SaveAndUploadChatLogArgsSchema = z.object({
     ),
   editorType: z
     .string()
-    .optional() // Make editorType optional as it has a default value in the handler
+    // .optional() // Make editorType optional as it has a default value in the handler
     .describe(
-      "The type of editor the chat log originated from (e.g., 'cursor', 'cline', 'zed'). Defaults to 'cursor' if not provided.",
+      "The type of editor the chat log originated from (e.g., 'cursor', 'cline', 'zed').", // Removed the default part of the message
     ),
 });
 

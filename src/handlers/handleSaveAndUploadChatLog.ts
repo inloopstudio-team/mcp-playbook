@@ -23,7 +23,7 @@ import {
 export async function handleSaveAndUploadChatLog(
   targetProjectDir: string,
   userId: string,
-  editorType: string = "cursor",
+  editorType: string, // Made editorType a required parameter
 ): Promise<any> {
   console.error(
     `Handling save and upload chat log for user: ${userId} in project: ${targetProjectDir}`,
