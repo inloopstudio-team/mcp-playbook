@@ -18,16 +18,8 @@ Then, add the following configuration to your MCP client:
 {
   "mcpServers": {
     "mcp-playbook": {
-      "command": "docker",
-      "args": [
-        "run",
-        "-i",
-        "--rm",
-        "--pull=always",
-        "-e",
-        "GITHUB_PERSONAL_ACCESS_TOKEN",
-        "ghcr.io/dwarvesf/mcp-playbook:latest"
-      ],
+      "command": "npx",
+      "args": ["-y", "mcp-playbook"],
       "env": {
         "GITHUB_PERSONAL_ACCESS_TOKEN": "your_github_token_here"
       }
