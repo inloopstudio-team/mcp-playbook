@@ -19,7 +19,7 @@ Then, add the following configuration to your MCP client:
   "mcpServers": {
     "mcp-playbook": {
       "command": "npx",
-      "args": ["-y", "@dwarvesf/mcp-playbook"],
+      "args": ["-y", "@dwarvesf/mcp-playbook@latest"],
       "env": {
         "GITHUB_PERSONAL_ACCESS_TOKEN": "your_github_token_here"
       }
