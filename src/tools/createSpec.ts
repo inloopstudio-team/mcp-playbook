@@ -3,11 +3,7 @@ import { zodToJsonSchema } from "zod-to-json-schema";
 import { ToolDefinition } from "../types.js";
 
 export const CreateSpecArgsSchema = z.object({
-  target_project_dir: z
-    .string()
-    .describe(
-      "The absolute or relative path to the root of the target project directory.",
-    ),
+
   spec_name: z
     .string()
     .describe(
@@ -17,6 +13,28 @@ export const CreateSpecArgsSchema = z.object({
     .string()
     .describe(
       "The markdown content of the specification. For small feature changes, provide a simple markdown outline is sufficient. For larger or more complex changes, format the content as a formal PRD or RFC.",
+    ),
+  branch_name: z
+    .string()
+    .optional()
+    .describe(
+      "The name of the branch to use for the changes. Suggestion: follow a descriptive naming convention (e.g., 'docs/add-spec-name').",
+    ),
+  commit_message: z
+    .string()
+    .optional()
+    .describe("The commit message for the file change."),
+  pr_title: z
+    .string()
+    .optional()
+    .describe(
+      "The title for a new Pull Request. Follow commitlint standards (e.g., 'docs: add spec name').",
+    ),
+  pr_body: z
+    .string()
+    .optional()
+    .describe(
+      "The body content for a new Pull Request. Provide a comprehensive and detailed description.",
     ),
 });
 

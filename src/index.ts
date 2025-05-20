@@ -15,24 +15,14 @@ import {
   handleGetPrompt,
   handleInitPlaybook,
   handleListPrompts,
-  handleSaveAndUploadChatLog,
-  handleSearchPrompts,
-  handleSearchRunbook,
-  handleSuggestRunbook,
-  handleSyncPrompt,
   handleThinkTool,
   handleUpdateChangelog,
 } from "./handlers.js";
 import { CreateAdrArgs } from "./tools/createAdr.js";
 import { CreateChangelogArgs } from "./tools/createChangelog.js";
 import { CreateSpecArgs } from "./tools/createSpec.js";
-import toolDefinitions from "./tools/definitions.js";
-import { SaveAndUploadChatLogArgs } from "./tools/saveAndUploadChatLog.js";
-import { SearchPromptsArgs } from "./tools/searchPrompts.js";
-import { SearchRunbookArgs } from "./tools/searchRunbook.js";
-import { SuggestRunbookArgs } from "./tools/suggestRunbook.js";
-import { SyncPromptArgs } from "./tools/syncPrompt.js";
 import { ThinkToolArgs } from "./tools/thinkTool.js";
+import toolDefinitions from "./tools/definitions.js";
 
 // Optional: Load environment variables from .env in local development
 import * as dotenv from "dotenv";
@@ -82,26 +72,11 @@ async function main() {
               toolArgs as CreateChangelogArgs,
             );
             break;
-          case "save_and_upload_chat_log":
-            const saveArgs = toolArgs as SaveAndUploadChatLogArgs;
-            result = await handleSaveAndUploadChatLog(
-              saveArgs.target_project_dir,
-              saveArgs.userId,
-              saveArgs.editorType,
-            );
-            break;
-          case "search_runbook":
-            result = await handleSearchRunbook(toolArgs as SearchRunbookArgs);
-            break;
-          case "search_prompts":
-            result = await handleSearchPrompts(toolArgs as SearchPromptsArgs);
-            break;
-          case "suggest_runbook":
-            result = await handleSuggestRunbook(toolArgs as SuggestRunbookArgs);
-            break;
-          case "sync_prompt":
-            result = await handleSyncPrompt(toolArgs as SyncPromptArgs);
-            break;
+
+
+
+
+
           case "think":
             result = await handleThinkTool(toolArgs as ThinkToolArgs);
             break;

@@ -3,11 +3,7 @@ import { zodToJsonSchema } from "zod-to-json-schema";
 import { ToolDefinition } from "../types.js";
 
 export const CreateChangelogArgsSchema = z.object({
-  target_project_dir: z
-    .string()
-    .describe(
-      "The absolute path to the root of the target project directory. Using an absolute path is highly recommended for reliability.",
-    ),
+
   entry_content: z
     .string()
     .describe("The markdown content of the new changelog entry."),
@@ -15,6 +11,28 @@ export const CreateChangelogArgsSchema = z.object({
     .string()
     .describe(
       "The desired name for the changelog file (without sequence numbers and the .md extension).",
+    ),
+  branch_name: z
+    .string()
+    .optional()
+    .describe(
+      "The name of the branch to use for the changes. Suggestion: follow a descriptive naming convention (e.g., 'docs/add-changelog-entry').",
+    ),
+  commit_message: z
+    .string()
+    .optional()
+    .describe("The commit message for the file change."),
+  pr_title: z
+    .string()
+    .optional()
+    .describe(
+      "The title for a new Pull Request. Follow commitlint standards (e.g., 'docs: add changelog entry').",
+    ),
+  pr_body: z
+    .string()
+    .optional()
+    .describe(
+      "The body content for a new Pull Request. Provide a comprehensive and detailed description.",
     ),
 });
 

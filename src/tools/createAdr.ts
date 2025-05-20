@@ -3,17 +3,35 @@ import { zodToJsonSchema } from "zod-to-json-schema";
 import { ToolDefinition } from "../types.js";
 
 export const CreateAdrArgsSchema = z.object({
-  target_project_dir: z
-    .string()
-    .describe(
-      "The absolute path to the root of the target project directory. Using an absolute path is highly recommended for reliability.",
-    ),
+
   adr_name: z
     .string()
     .describe(
       "The name of the ADR file (without sequence numbers and the .md extension).",
     ),
   content: z.string().describe("The markdown content of the ADR."),
+  branch_name: z
+    .string()
+    .optional()
+    .describe(
+      "The name of the branch to use for the changes. Suggestion: follow a descriptive naming convention (e.g., 'docs/add-adr-name').",
+    ),
+  commit_message: z
+    .string()
+    .optional()
+    .describe("The commit message for the file change."),
+  pr_title: z
+    .string()
+    .optional()
+    .describe(
+      "The title for a new Pull Request. Follow commitlint standards (e.g., 'docs: add adr name').",
+    ),
+  pr_body: z
+    .string()
+    .optional()
+    .describe(
+      "The body content for a new Pull Request. Provide a comprehensive and detailed description.",
+    ),
 });
 
 export type CreateAdrArgs = z.infer<typeof CreateAdrArgsSchema>;
