@@ -7,7 +7,7 @@ import * as githubApi from "../utils/githubApi.js";
 import { validateArgs } from "../utils/validationUtils.js";
 import { injectAuthorIntoFrontmatter } from "../utils/frontmatterUtils.js";
 
-export async function handleUpdateChangelog(
+export async function handleCreateChangelog(
   args: CreateChangelogArgs,
 ): Promise<any> {
   try {
@@ -139,7 +139,7 @@ export async function handleUpdateChangelog(
       message: `Successfully created changelog entry and opened PR #${newPr.number}`,
     };
   } catch (e: any) {
-    console.error(`Error in handleUpdateChangelog: ${e.message}`);
+    console.error(`Error in handleCreateChangelog: ${e.message}`);
     return {
       status: "error",
       message: `Failed to create changelog entry and open PR: ${e.message}`,
