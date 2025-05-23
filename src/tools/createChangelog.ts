@@ -3,7 +3,6 @@ import { zodToJsonSchema } from "zod-to-json-schema";
 import { ToolDefinition } from "../types.js";
 
 export const CreateChangelogArgsSchema = z.object({
-
   entry_content: z
     .string()
     .describe("The markdown content of the new changelog entry."),

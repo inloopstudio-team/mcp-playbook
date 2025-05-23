@@ -3,7 +3,6 @@ import { zodToJsonSchema } from "zod-to-json-schema";
 import { ToolDefinition } from "../types.js";
 
 export const CreateSpecArgsSchema = z.object({
-
   spec_name: z
     .string()
     .describe(

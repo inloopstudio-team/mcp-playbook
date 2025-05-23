@@ -2,17 +2,7 @@ import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import { ToolDefinition } from "../types.js";
 
-export const CreateAdrArgsSchema = z.object({
-
-  adr_name: z
-    .string()
-    .describe(
-      "The name of the ADR file (without sequence numbers and the .md extension).",
-    ),
-  content: z
-    .string()
-    .describe('''The markdown content of the ADR. This content must strictly follow the following template:
-```
+const ADR_TEMPLATE = ```
 ---
 # These are optional metadata elements. Feel free to remove any of them.
 status: "{proposed | rejected | accepted | deprecated | … | superseded by ADR-0123"
@@ -87,7 +77,19 @@ Chosen option: "{title of option 1}", because {justification. e.g., only option,
 <h2>More Information</h2>
 
 {You might want to provide additional evidence/confidence for the decision outcome here and/or document the team agreement on the decision and/or define when/how this decision the decision should be realized and if/when it should be re-visited. Links to other decisions and resources might appear here as well.}
-```'''),
+```;
+
+export const CreateAdrArgsSchema = z.object({
+  adr_name: z
+    .string()
+    .describe(
+      "The name of the ADR file (without sequence numbers and the .md extension).",
+    ),
+  content: z
+    .string()
+    .describe(
+      `The markdown content of the ADR. This content must strictly follow the following template: ${ADR_TEMPLATE}`,
+    ),
   branch_name: z
     .string()
     .optional()

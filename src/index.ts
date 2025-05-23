@@ -11,18 +11,18 @@ import {
 
 import {
   handleCreateAdr,
+  handleCreateChangelog,
   handleCreateSpec,
   handleGetPrompt,
   handleInitPlaybook,
   handleListPrompts,
   handleThinkTool,
-  handleCreateChangelog,
 } from "./handlers.js";
 import { CreateAdrArgs } from "./tools/createAdr.js";
 import { CreateChangelogArgs } from "./tools/createChangelog.js";
 import { CreateSpecArgs } from "./tools/createSpec.js";
-import { ThinkToolArgs } from "./tools/thinkTool.js";
 import toolDefinitions from "./tools/definitions.js";
+import { ThinkToolArgs } from "./tools/thinkTool.js";
 
 // Optional: Load environment variables from .env in local development
 import * as dotenv from "dotenv";
@@ -72,10 +72,6 @@ async function main() {
               toolArgs as CreateChangelogArgs,
             );
             break;
-
-
-
-
 
           case "think":
             result = await handleThinkTool(toolArgs as ThinkToolArgs);
