@@ -28,32 +28,7 @@ export async function handleCreateAdr(args: CreateAdrArgs): Promise<any> {
     // Inject the authenticated user into the frontmatter using the utility function
     const contentToUse = injectAuthorIntoFrontmatter(content, username);
 
-    // Determine the next sequence number by listing files in the target directory on GitHub
-    let nextSequenceNumber = 1;
-    try {
-      const files = await githubApi.getContents(
-        githubOwner,
-        githubRepo,
-        baseRepoPath,
-        baseBranch
-      );
-      if (Array.isArray(files) && files.length > 0) {
-         const numberedFiles = files.filter((file: any) => file.type === 'file' && /^\d{4}-.*\.md$/.test(file.name));
-         if (numberedFiles.length > 0) {
-           const numbers = numberedFiles.map((file: any) =>
-             parseInt(file.name.substring(0, 4), 10)
-           );
-           const maxNumber = Math.max(...numbers);
-           nextSequenceNumber = maxNumber + 1;
-         }
-       }
-    } catch (e: any) {
-      console.warn(
-        `Could not read ADR directory on GitHub or no numbered files found, starting sequence from 1: ${e.message}`,
-      );
-    }
 
-    const sequencePrefix = nextSequenceNumber.toString().padStart(4, "0");
 
     // Sanitize the provided adrName for the filename slug
     const slug = adr_name
@@ -62,7 +37,7 @@ export async function handleCreateAdr(args: CreateAdrArgs): Promise<any> {
       .replace(/[^a-z0-9_-]/g, "")
       .substring(0, 50); // Basic slug generation
 
-    const newFilename = `${sequencePrefix}-${slug}.md`;
+    const newFilename = `${slug}.md`;
     const targetFilePath = path.posix.join(baseRepoPath, newFilename);
 
     // Determine branch name (generate new if not provided)
